@@ -26,7 +26,7 @@ class HeroSprite
 		locx = x;
 		locy = y;
 		g = grid;
-		color = Color.RED;
+		color = Color.LIME;
 		state = STAND;
 	}
 	
