@@ -6,6 +6,7 @@ import javafx.scene.paint.Color;
 public class Alien {
 
 	public boolean hit = false;
+	public static boolean render = false;
 	static Random rng = new Random();
 	
 	int x, y;   

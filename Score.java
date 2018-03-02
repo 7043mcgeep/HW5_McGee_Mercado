@@ -5,7 +5,7 @@ import javafx.scene.text.FontWeight;
 
 public class Score {
 
-   int score = 10; 
+   int score = 0; 
 
    Font font;
 
@@ -16,10 +16,8 @@ public class Score {
    public void render(GraphicsContext gc){
 	   gc.setFill(Color.WHITE);
 	   gc.setFont(font);
-	   if (score>0)
-		   gc.fillText(""+score, 700, 50);
-	   else
-		   gc.fillText("You LOST! and was promptly digested by aliens...", 100, 50);   
+		   
+	   gc.fillText(""+score, 700, 50);  
    }
 
 }
