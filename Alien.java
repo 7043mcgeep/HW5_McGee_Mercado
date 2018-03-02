@@ -4,13 +4,13 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public class Alien {
-	
+
+	public boolean hit = false;
 	static Random rng = new Random();
 	
 	int x, y;   
 	int w, h;   
-	int vx, vy; 
-	boolean passed = false;
+	int vx, vy;
 	
 	Random r = new Random();
 	int Low = 100;
@@ -24,14 +24,13 @@ public class Alien {
 		vx = -5;
 		
 		// Choose random position on the Canvas
-		x = UFO.WIDTH/2 + rng.nextInt(1001);
+		x = UFO.WIDTH+500 + rng.nextInt(1001);
 		y = 5 + rng.nextInt(1001);
 	}
 	
 	public void move()
 	{
-		x += vx; 
-		
+		x += vx;
 		
 		if (x+w < 0) {
 			x = UFO.WIDTH + Result;
@@ -54,20 +53,8 @@ public class Alien {
 	int base = (int) System.currentTimeMillis();
 	public void render(GraphicsContext gc)
 	{
-		curr = (int) System.currentTimeMillis();
-		sec = (curr - base) / 1000;
-		
-		gc.setFill(Color.WHITE);
-		gc.fillText(Integer.toString(sec) + " sec", UFO.WIDTH-200, 50);
-		
 		gc.setFill(Color.SADDLEBROWN);
-		
-		if(sec <= 15)
-			gc.fillRect(x,  y,  w,  h);
-		
-		else
-			passed = true;
-		
+		gc.fillRect(x,  y,  w,  h);
 	}
 	
 }

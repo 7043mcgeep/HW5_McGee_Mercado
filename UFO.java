@@ -10,6 +10,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 	
 /**
  Rene Mercado
@@ -20,8 +22,12 @@ import javafx.util.Duration;
 public class UFO extends Application {
 	final String appName = "FloatingBoxes";
 	final int FPS = 30; // frames per second
-	static final int WIDTH = 750*2;
-	static final int HEIGHT = 500*2;
+	static final int WIDTH = 1400;
+	static final int HEIGHT = 650;
+	public boolean hit;
+	
+	Font font = Font.font("Droid Sans", FontWeight.BOLD, 32);
+	Font fontSmall = Font.font("Droid Sans", FontWeight.BOLD, 22);
 
 	Alien[] aliens = new Alien[50];
 	Player p =  new Player();
@@ -42,39 +48,81 @@ public class UFO extends Application {
 	 *  Update variables for one time step
 	 */
 	void update() {
+		
 		p.move();
+		
 		for (int k = 0; k < aliens.length; k++)
 			if (p.collision(aliens[k])) {	
 				score.score--;
-				
+				aliens[k].hit = true;
 			}
+		
 		for (Alien b: aliens)
 			b.move();
 			
 		// Run through pairs of aliens checking for collisions
 		// (i > j to avoid duplicate pairs)
-		for (int i = 1; i < aliens.length; i++)
-			for (int j = 0; j < i; j++)
-				if (aliens[i].passed)
-				{
-					aliens[i].x = -1000;
-				}
+		//for (int i = 1; i < aliens.length; i++)
+			//for (int j = 0; j < i; j++)
+
+					//aliens[i].x = -1000;
 			
 	}
 
 	/**
 	 *  Draw the game world
+	 *  
+	 *  IDEAS:
+	 *  Before game begins, have a ~ 6second period of time where
+	 *  the spaceship is in the middle flying normally with fire
+	 *  in engines,
+	 *  then "fuel low" comes up and an animation of smoke comes out of
+	 *  engines instead of fire. During this sequence, controls are disabled.
+	 *  Then "ASTEROIDS INCOMING". User dodges asteroids for like maybe 30 seconds.
+	 *  60 seems too long.
+	 *  "FUEL LOW" alert stays on screen. Each alert render, there should be a beeping noise.
+	 *  But at the end of the 30seconds the asteroids explode because the user beat the level.
+	 *  Then controls are disabled again, the spaceship moves toward the left, and off the screen.
+	 *  Then transition screen comes up "YOU'VE CRASH LANDED ON PLANET ZORG" and you fight a boss.
 	 */
+	int base = (int) System.currentTimeMillis();
 	void render(GraphicsContext gc) {
-		// Clear background
+		
+		int currTime = Timer.getTimeSec(base);	
+		
+		// Black background
 		gc.setFill(Color.BLACK);
 		gc.fillRect(0, 0, WIDTH, HEIGHT);
-
-		// Draw buildings
+		
+		gc.setFill(Color.WHITE);
+		gc.fillText(Integer.toString(currTime) + " sec", UFO.WIDTH-400, 50);
+		
+		// Draw asteroids
 		for (Alien b: aliens)
 			b.render(gc);
-			p.render(gc);
-			score.render(gc);
+		
+		gc.setFill(Color.RED);
+		if(currTime % 2 == 0) {
+			gc.setFont(fontSmall);
+			gc.fillText("FUEL LOW", WIDTH/3+100, 60);
+			System.out.println(currTime);
+		}
+		
+		if(currTime >= 2 && currTime <= 5) {
+			gc.setFill(Color.BLUE);
+			gc.setFont(font);
+			gc.fillText("ASTEROIDS INCOMING", WIDTH/3, HEIGHT/2);
+		}
+		/*
+		for (int k = 0; k < aliens.length; k++)
+			if (p.collision(aliens[k])) {	
+				score.score--;
+				aliens[k].hit = true;
+			}*/
+		
+		p.render(gc);
+		
+		score.render(gc);
 	}
 
 	/*

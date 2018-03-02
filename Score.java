@@ -17,7 +17,7 @@ public class Score {
 	   gc.setFill(Color.WHITE);
 	   gc.setFont(font);
 	   if (score>0)
-	   gc.fillText(""+score, 700, 50);
+		   gc.fillText(""+score, 700, 50);
 	   else
 		   gc.fillText("You LOST! and was promptly digested by aliens...", 100, 50);   
    }

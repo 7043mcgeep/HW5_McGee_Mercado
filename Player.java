@@ -6,28 +6,28 @@ public class Player {
 
    boolean upKey = false, downKey = false, rightKey = false, leftKey = false;
 
-   final static int WIDTH = 25;
-   final static int HEIGHT = 25;
+   final static int w = 25;
+   final static int h = 25;
    final static int SPEED = 4;
    
 
    
    public Player(){
       x = 50;
-      y = HEIGHT/2 ;
+      y = h/2 ;
    }
 
    public void move(){
-	   if (upKey)
+	   if (upKey && y > 0)
 	       y -= SPEED;
-	   if (downKey)
+	   if (downKey && y < UFO.HEIGHT-w)
 	       y += SPEED;
 	  
    }
 
    public void render(GraphicsContext gc){
 	   gc.setFill(Color.WHITE);
-	   gc.fillRect(x, y, WIDTH, HEIGHT);
+	   gc.fillRect(x, y, w, h);
    }
 
    public void setUpKey(Boolean val){
