@@ -16,7 +16,7 @@ public class Alien {
 	Random r = new Random();
 	int Low = 100;
 	int High = 501;
-	int Result = r.nextInt(High-Low) + Low;
+	int random = r.nextInt(High-Low) + Low;
 	public Alien()
 	{
 		// Choose random size and movement
@@ -33,9 +33,9 @@ public class Alien {
 	{
 		x += vx;
 		
-		if (x+w < 0) {
-			x = UFO.WIDTH + Result;
-		}
+		// Only resets them to the right of the screen if user has not beaten level yet.
+		if (x+w < 0 && !UFO.beat_dodge)
+			x = UFO.WIDTH + random;
 		
 	}
 	
@@ -50,12 +50,12 @@ public class Alien {
 			return false;
 	}
 	
-	int curr = 0, sec = 0;
-	int base = (int) System.currentTimeMillis();
 	public void render(GraphicsContext gc)
 	{
-		gc.setFill(Color.SADDLEBROWN);
-		gc.fillRect(x,  y,  w,  h);
+		if(!UFO.transition_planet) {
+			gc.setFill(Color.SADDLEBROWN);
+			gc.fillRect(x,  y,  w,  h);
+		}
 	}
 	
 }

@@ -6,6 +6,8 @@ public class Player {
 
    boolean upKey = false, downKey = false, rightKey = false, leftKey = false;
 
+   static boolean landing_sequence = false;
+
    final static int w = 25;
    final static int h = 25;
    final static int SPEED = 4;
@@ -18,16 +20,12 @@ public class Player {
    }
 
    public void move(){
-	   if (upKey && y > 0)
+	   if (upKey && y > 0 && !landing_sequence)
 	       y -= SPEED;
-	   if (downKey && y < UFO.HEIGHT-w)
+	   if (downKey && y < UFO.HEIGHT-w && !landing_sequence)
 	       y += SPEED;
-	  
-   }
-
-   public void render(GraphicsContext gc){
-	   gc.setFill(Color.WHITE);
-	   gc.fillRect(x, y, w, h);
+	   if(landing_sequence)
+		   x += SPEED*1.5;
    }
 
    public void setUpKey(Boolean val){
@@ -48,11 +46,20 @@ public class Player {
    public boolean collision(Alien b)
 	{
 		if ((this.x > b.x + b.w) ||
-		    (this.x + 25 < b.x) ||
+		    (this.x + 25 < b.x)  ||
 		    (this.y > b.y + b.h) ||
 		    (this.y + 25 < b.y))    
-		return false;
+			return false;
 		else 
 			return true;
 	}
+   
+   public void render(GraphicsContext gc){
+	   if(x+w < UFO.WIDTH) {
+		   gc.setFill(Color.WHITE);
+		   gc.fillRect(x, y, w, h);
+	   }
+	   else
+		   UFO.transition_planet = true;    // Begin transition. Do not render player off-screen.
+   }
 }

@@ -25,10 +25,13 @@ public class UFO extends Application {
 	static final int WIDTH = 1400;
 	static final int HEIGHT = 650;
 	public boolean hit;
-	public boolean beat_level;
 	
-	Font font = Font.font("Droid Sans", FontWeight.BOLD, 32);
-	Font fontSmall = Font.font("Droid Sans", FontWeight.BOLD, 22);
+	public static boolean asteroid_stage = true;
+	public static boolean beat_dodge;
+	public static boolean transition_planet = false;
+	
+	Font font = Font.loadFont(UFO.class.getResource("PressStart2P.ttf").toExternalForm(), 32);
+	Font fontSmall = Font.loadFont(UFO.class.getResource("PressStart2P.ttf").toExternalForm(), 22);
 
 	Alien[] aliens = new Alien[50];
 	Player p =  new Player();
@@ -63,13 +66,13 @@ public class UFO extends Application {
 		System.out.println(currTime);
 		// When the same asteroid comes back again, it will still have the false attribute.
 		// Reset it here.
-		if(currTime == 20 || currTime == 30) {
+		if(currTime == 20 || currTime == 33) {
 			for (int k = 0; k < aliens.length; k++) {
 				aliens[k].hit = false;
 			}
 			
 			if(currTime == 30)
-				beat_level = true;
+				beat_dodge = true;
 		}
 				
 		for (Alien b: aliens)
@@ -104,49 +107,65 @@ public class UFO extends Application {
 	void render(GraphicsContext gc) {
 		
 		int currTime = Timer.getTimeSec(base);	
-		
-		// Black background
-		gc.setFill(Color.BLACK);
-		gc.fillRect(0, 0, WIDTH, HEIGHT);
-		
-		// Draw asteroids
-		for (Alien b: aliens)
-			b.render(gc);
-		
-		if(beat_level) {
+		// if(asteroid_stage) {
 			
-			// Explode all asteroids... then "brace for impact"... then crash land on planet.
-			// Or maybe just let them pass...
-			// How? Add a flag that only resets them to the right of the screen if beat_level == false.
+			// Black background
+			gc.setFill(Color.BLACK);
+			gc.fillRect(0, 0, WIDTH, HEIGHT);
 			
-			if(currTime >= 32 && currTime <= 34) {
-				gc.setFill(Color.YELLOW);
-				gc.setFont(font);
-				gc.fillText("CRASH LANDING.\nBRACE FOR IMPACT.", WIDTH/3, HEIGHT/2);
-			}
+			// Draw asteroids
+			for (Alien b: aliens)
+				b.render(gc);
+			
+			if(beat_dodge) {
 				
-			//Alien.render = false;
-		}
+				if(currTime >= 38 && currTime <= 46) {
+					Player.landing_sequence = true;
+					gc.setFill(Color.YELLOW);
+					gc.setFont(font);
+					if(currTime % 2 == 0)
+						gc.fillText("CRASH LANDING.\nBRACE FOR IMPACT.", WIDTH/3, HEIGHT/2);
+				}
+					
+				//Alien.render = false;
+			}
+			
+			// Text goes last to overlay previous items.
+			if(currTime >= 2 && currTime <= 5) {
+				gc.setFill(Color.BLUE);
+				gc.setFont(font);
+				gc.fillText("ASTEROIDS INCOMING", WIDTH/3, HEIGHT/2);
+			}
+			
+			gc.setFill(Color.RED);
+			if(currTime % 2 == 0) {
+				gc.setFont(fontSmall);
+				gc.fillText("FUEL LOW", WIDTH/3+100, 60);
+			}
+			
+			p.render(gc);
+		// } // end asteroid stage
 		
-		// Text goes last to overlay previous items.
-		if(currTime >= 2 && currTime <= 5) {
-			gc.setFill(Color.BLUE);
-			gc.setFont(font);
-			gc.fillText("ASTEROIDS INCOMING", WIDTH/3, HEIGHT/2);
-		}
-		
-		gc.setFill(Color.RED);
-		if(currTime % 2 == 0) {
-			gc.setFont(fontSmall);
-			gc.fillText("FUEL LOW", WIDTH/3+100, 60);
-		}
-		
+		/*
+		else if(transition_planet) {
+			
+			// Black background
+			gc.setFill(Color.BLACK);
+			gc.fillRect(0, 0, WIDTH, HEIGHT);
+			
+			// Text goes last to overlay previous items.
+			if(currTime >= 2 && currTime <= 5) {
+				gc.setFill(Color.WHITE);
+				gc.setFont(font);
+				gc.fillText("YOU HAVE CRASH LANDED ON PLANET ZORG", WIDTH/3, HEIGHT/2);
+			}
+			
+		}*/
+			
+		// For now, always render score and current time.
 		gc.setFill(Color.WHITE);
 		gc.setFont(fontSmall);
 		gc.fillText(Integer.toString(currTime) + " sec", UFO.WIDTH-400, 50);
-		
-		p.render(gc);
-		
 		score.render(gc);
 	}
 

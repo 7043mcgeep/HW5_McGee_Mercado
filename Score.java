@@ -17,7 +17,7 @@ public class Score {
 	   gc.setFill(Color.WHITE);
 	   gc.setFont(font);
 		   
-	   gc.fillText(""+score, 700, 50);  
+	   gc.fillText(""+score, 750, 50);  
    }
 
 }
