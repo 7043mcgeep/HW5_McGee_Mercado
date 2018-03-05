@@ -43,7 +43,7 @@ public class Player {
    public void setLeftKey(Boolean val){
 	   leftKey = val;
    }
-   public boolean collision(Alien b)
+   public boolean collision(Asteroid b)
 	{
 		if ((this.x > b.x + b.w) ||
 		    (this.x + 25 < b.x)  ||

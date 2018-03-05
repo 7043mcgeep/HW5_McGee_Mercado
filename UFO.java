@@ -11,7 +11,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 	
 /**
  Rene Mercado
@@ -24,7 +23,9 @@ public class UFO extends Application {
 	final int FPS = 30; // frames per second
 	static final int WIDTH = 1400;
 	static final int HEIGHT = 650;
+	public static int waves = 0;
 	public boolean hit;
+	public int passCount = 0;
 	
 	public static boolean asteroid_stage = true;
 	public static boolean beat_dodge;
@@ -33,7 +34,7 @@ public class UFO extends Application {
 	Font font = Font.loadFont(UFO.class.getResource("PressStart2P.ttf").toExternalForm(), 32);
 	Font fontSmall = Font.loadFont(UFO.class.getResource("PressStart2P.ttf").toExternalForm(), 22);
 
-	Alien[] aliens = new Alien[50];
+	Asteroid[] asteroids = new Asteroid[50];
 	Player p =  new Player();
 	Score score;
 	
@@ -42,8 +43,8 @@ public class UFO extends Application {
 	 */
 	void initialize()
 	{
-		for (int i = 0; i < aliens.length; i++)
-			aliens[i] = new Alien();
+		for (int i = 0; i < asteroids.length; i++)
+			asteroids[i] = new Asteroid();
 			p = new Player();
 			score = new Score();
 	}
@@ -56,34 +57,40 @@ public class UFO extends Application {
 		int currTime = Timer.getTimeSec(u_base);	
 		p.move();
 		
-		for (int k = 0; k < aliens.length; k++) {
-			if (p.collision(aliens[k]) && aliens[k].hit == false) {		// Check collision
+		for (int k = 0; k < asteroids.length; k++) {
+			// Check if player is hit by the asteroid
+			if (p.collision(asteroids[k]) && asteroids[k].hit == false) {		// Check collision
 				score.score++;
-				aliens[k].hit = true;
+				asteroids[k].hit = true;
+			}
+			
+			// An asteroid leaves the screen on the left side
+			if(asteroids[k].x + asteroids[k].w/2 < 0 && passCount != 50 && !asteroids[k].fullPass){
+				asteroids[k].fullPass = true;
+				passCount++;
 			}
 		}
 
-		System.out.println(currTime);
 		// When the same asteroid comes back again, it will still have the false attribute.
 		// Reset it here.
-		if(currTime == 20 || currTime == 33) {
-			for (int k = 0; k < aliens.length; k++) {
-				aliens[k].hit = false;
+		if(passCount == 50) {
+			for (int k = 0; k < asteroids.length; k++) {
+				asteroids[k].hit = false;
+				asteroids[k].fullPass = false;
 			}
-			
-			if(currTime == 30)
-				beat_dodge = true;
-		}
-				
-		for (Alien b: aliens)
-			b.move();
-			
-		// Run through pairs of aliens checking for collisions
-		// (i > j to avoid duplicate pairs)
-		//for (int i = 1; i < aliens.length; i++)
-			//for (int j = 0; j < i; j++)
+			if(waves < 3)
+				waves++;
+			else
+				waves = 0;
 
-					//aliens[i].x = -1000;
+			passCount = 0;
+		}
+		
+		if(waves == 2)
+			beat_dodge = true;
+				
+		for (Asteroid b: asteroids)
+			b.move();
 			
 	}
 
@@ -106,47 +113,46 @@ public class UFO extends Application {
 	int base = (int) System.currentTimeMillis();
 	void render(GraphicsContext gc) {
 		
-		int currTime = Timer.getTimeSec(base);	
-		// if(asteroid_stage) {
-			
-			// Black background
-			gc.setFill(Color.BLACK);
-			gc.fillRect(0, 0, WIDTH, HEIGHT);
-			
-			// Draw asteroids
-			for (Alien b: aliens)
-				b.render(gc);
-			
-			if(beat_dodge) {
-				
-				if(currTime >= 38 && currTime <= 46) {
-					Player.landing_sequence = true;
-					gc.setFill(Color.YELLOW);
-					gc.setFont(font);
-					if(currTime % 2 == 0)
-						gc.fillText("CRASH LANDING.\nBRACE FOR IMPACT.", WIDTH/3, HEIGHT/2);
-				}
-					
-				//Alien.render = false;
-			}
-			
-			// Text goes last to overlay previous items.
-			if(currTime >= 2 && currTime <= 5) {
-				gc.setFill(Color.BLUE);
-				gc.setFont(font);
-				gc.fillText("ASTEROIDS INCOMING", WIDTH/3, HEIGHT/2);
-			}
-			
-			gc.setFill(Color.RED);
-			if(currTime % 2 == 0) {
-				gc.setFont(fontSmall);
-				gc.fillText("FUEL LOW", WIDTH/3+100, 60);
-			}
-			
-			p.render(gc);
-		// } // end asteroid stage
+		int currTime = Timer.getTimeSec(base);
 		
-		/*
+		if(asteroid_stage) {
+				
+				// Black background
+				gc.setFill(Color.BLACK);
+				gc.fillRect(0, 0, WIDTH, HEIGHT);
+				
+				// Draw asteroids
+				for (Asteroid b: asteroids)
+					b.render(gc);
+					
+				if(beat_dodge) {
+					if(waves == 3) {
+						Player.landing_sequence = true;
+						gc.setFill(Color.YELLOW);
+						gc.setFont(font);
+						if(currTime % 2 == 0)
+							gc.fillText("CRASH LANDING.\nBRACE FOR IMPACT.", WIDTH/3, HEIGHT/2);
+					}
+				}	
+				
+				// Text goes last to overlay previous items.
+				if(currTime >= 2 && currTime <= 5) {
+					gc.setFill(Color.BLUE);
+					gc.setFont(font);
+					gc.fillText("ASTEROIDS INCOMING", WIDTH/4, HEIGHT/2);
+				}
+				
+				if(!transition_planet) {
+					if(currTime % 2 == 0) {
+						gc.setFill(Color.RED);
+						gc.setFont(fontSmall);
+						gc.fillText("FUEL LOW", WIDTH/3+100, 60);
+					}
+				}
+				
+				p.render(gc);
+		}
+		
 		else if(transition_planet) {
 			
 			// Black background
@@ -160,7 +166,7 @@ public class UFO extends Application {
 				gc.fillText("YOU HAVE CRASH LANDED ON PLANET ZORG", WIDTH/3, HEIGHT/2);
 			}
 			
-		}*/
+		}
 			
 		// For now, always render score and current time.
 		gc.setFill(Color.WHITE);

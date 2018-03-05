@@ -3,7 +3,7 @@ import java.util.Random;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class Alien {
+public class Asteroid {
 
 	public boolean hit = false;
 	public static boolean render = false;
@@ -12,12 +12,13 @@ public class Alien {
 	int x, y;   
 	int w, h;   
 	int vx, vy;
+	public boolean fullPass;
 	
 	Random r = new Random();
 	int Low = 100;
 	int High = 501;
 	int random = r.nextInt(High-Low) + Low;
-	public Alien()
+	public Asteroid()
 	{
 		// Choose random size and movement
 		w = 20 + rng.nextInt(51);
@@ -34,12 +35,14 @@ public class Alien {
 		x += vx;
 		
 		// Only resets them to the right of the screen if user has not beaten level yet.
-		if (x+w < 0 && !UFO.beat_dodge)
+		if (x+w < 0 && !UFO.beat_dodge) {
 			x = UFO.WIDTH + random;
+			fullPass = true;
+		}
 		
 	}
 	
-	public boolean overlaps(Alien b)
+	public boolean overlaps(Asteroid b)
 	{
 		if ((this.x > b.x + b.w) ||
 		    (this.x + this.w < b.x) ||
