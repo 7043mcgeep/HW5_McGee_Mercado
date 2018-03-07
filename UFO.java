@@ -30,13 +30,15 @@ public class UFO extends Application {
 	public static boolean asteroid_stage = true;
 	public static boolean beat_dodge;
 	public static boolean transition_planet = false;
+	public static boolean planet_stage = true;
 	
-	Font font = Font.loadFont(UFO.class.getResource("PressStart2P.ttf").toExternalForm(), 32);
-	Font fontSmall = Font.loadFont(UFO.class.getResource("PressStart2P.ttf").toExternalForm(), 22);
+	static Font font = Font.loadFont(UFO.class.getResource("PressStart2P.ttf").toExternalForm(), 32);
+	static Font fontSmall = Font.loadFont(UFO.class.getResource("PressStart2P.ttf").toExternalForm(), 22);
 
 	Asteroid[] asteroids = new Asteroid[50];
 	Player p =  new Player();
 	Score score;
+	Lives lives;
 	
 	/**
 	 * Set up initial data structures/values
@@ -45,8 +47,10 @@ public class UFO extends Application {
 	{
 		for (int i = 0; i < asteroids.length; i++)
 			asteroids[i] = new Asteroid();
-			p = new Player();
-			score = new Score();
+		
+		p = new Player();
+		score = new Score();
+		lives = new Lives();
 	}
 
 	/**
@@ -54,18 +58,19 @@ public class UFO extends Application {
 	 */
 	int u_base = (int) System.currentTimeMillis();
 	void update() {
-		int currTime = Timer.getTimeSec(u_base);	
+		
 		p.move();
 		
 		for (int k = 0; k < asteroids.length; k++) {
 			// Check if player is hit by the asteroid
 			if (p.collision(asteroids[k]) && asteroids[k].hit == false) {		// Check collision
-				score.score++;
+				lives.lives -= 1;
 				asteroids[k].hit = true;
 			}
 			
 			// An asteroid leaves the screen on the left side
-			if(asteroids[k].x + asteroids[k].w/2 < 0 && passCount != 50 && !asteroids[k].fullPass){
+			if(asteroids[k].x + asteroids[k].w/2 < 50 && passCount != 50 && !asteroids[k].fullPass && !Player.landing_sequence){
+				score.score += 100;
 				asteroids[k].fullPass = true;
 				passCount++;
 			}
@@ -91,25 +96,9 @@ public class UFO extends Application {
 				
 		for (Asteroid b: asteroids)
 			b.move();
-			
 	}
 
-	/**
-	 *  Draw the game world
-	 *  
-	 *  IDEAS:
-	 *  Before game begins, have a ~ 6second period of time where
-	 *  the spaceship is in the middle flying normally with fire
-	 *  in engines,
-	 *  then "fuel low" comes up and an animation of smoke comes out of
-	 *  engines instead of fire. During this sequence, controls are disabled.
-	 *  Then "ASTEROIDS INCOMING". User dodges asteroids for like maybe 30 seconds.
-	 *  60 seems too long.
-	 *  "FUEL LOW" alert stays on screen. Each alert render, there should be a beeping noise.
-	 *  But at the end of the 30seconds the asteroids explode because the user beat the level.
-	 *  Then controls are disabled again, the spaceship moves toward the left, and off the screen.
-	 *  Then transition screen comes up "YOU'VE CRASH LANDED ON PLANET ZORG" and you fight a boss.
-	 */
+	// Draw the game world.
 	int base = (int) System.currentTimeMillis();
 	void render(GraphicsContext gc) {
 		
@@ -130,8 +119,11 @@ public class UFO extends Application {
 						Player.landing_sequence = true;
 						gc.setFill(Color.YELLOW);
 						gc.setFont(font);
-						if(currTime % 2 == 0)
-							gc.fillText("CRASH LANDING.\nBRACE FOR IMPACT.", WIDTH/3, HEIGHT/2);
+						for(int i = 0; i < 4; i++) {
+							if(currTime % 2 == 0)
+								gc.fillText("CRASH LANDING.\nBRACE FOR IMPACT.", WIDTH/3, HEIGHT/2);
+						}
+						beat_dodge = false;
 					}
 				}	
 				
@@ -146,33 +138,38 @@ public class UFO extends Application {
 					if(currTime % 2 == 0) {
 						gc.setFill(Color.RED);
 						gc.setFont(fontSmall);
-						gc.fillText("FUEL LOW", WIDTH/3+100, 60);
+						gc.fillText("FUEL LOW", WIDTH/3+100, 50);
 					}
 				}
 				
 				p.render(gc);
 		}
 		
-		else if(transition_planet) {
-			
+		else if(transition_planet) {	
 			// Black background
 			gc.setFill(Color.BLACK);
 			gc.fillRect(0, 0, WIDTH, HEIGHT);
 			
 			// Text goes last to overlay previous items.
-			if(currTime >= 2 && currTime <= 5) {
-				gc.setFill(Color.WHITE);
-				gc.setFont(font);
-				gc.fillText("YOU HAVE CRASH LANDED ON PLANET ZORG", WIDTH/3, HEIGHT/2);
-			}
+			gc.setFill(Color.WHITE);
+			gc.setFont(font);
+			gc.fillText("YOU HAVE CRASH LANDED ON PLANET ZORG", WIDTH/3, HEIGHT/2);
 			
+			Player.render_transition = true;
+		}	
+		
+		else if(planet_stage) {
+			// Bisque background
+			gc.setFill(Color.BISQUE);
+			gc.fillRect(0, 0, WIDTH, HEIGHT);
 		}
 			
 		// For now, always render score and current time.
 		gc.setFill(Color.WHITE);
 		gc.setFont(fontSmall);
-		gc.fillText(Integer.toString(currTime) + " sec", UFO.WIDTH-400, 50);
+		gc.fillText(Integer.toString(currTime) + " sec", 850, 50);
 		score.render(gc);
+		lives.render(gc);
 	}
 
 	/*

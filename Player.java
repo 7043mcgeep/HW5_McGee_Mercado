@@ -1,4 +1,5 @@
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 public class Player {
@@ -7,11 +8,13 @@ public class Player {
    boolean upKey = false, downKey = false, rightKey = false, leftKey = false;
 
    static boolean landing_sequence = false;
+   static boolean render_transition = false;
+   static boolean moved = false;
 
-   final static int w = 25;
-   final static int h = 25;
+   final static int w = 70;
+   final static int h = 70;
    final static int SPEED = 4;
-   
+   static Image ship = new Image("ship.gif");
 
    
    public Player(){
@@ -26,6 +29,12 @@ public class Player {
 	       y += SPEED;
 	   if(landing_sequence)
 		   x += SPEED*1.5;
+	   if(render_transition) {
+		   x = 0;
+		   y = 0;
+		   x += SPEED*2;
+		   y += SPEED*2;
+	   }
    }
 
    public void setUpKey(Boolean val){
@@ -56,8 +65,9 @@ public class Player {
    
    public void render(GraphicsContext gc){
 	   if(x+w < UFO.WIDTH) {
-		   gc.setFill(Color.WHITE);
-		   gc.fillRect(x, y, w, h);
+		   //gc.setFill(Color.WHITE);
+		   //gc.fillRect(x, y, w, h);
+		   gc.drawImage(ship, x, y, w, h);
 	   }
 	   else
 		   UFO.transition_planet = true;    // Begin transition. Do not render player off-screen.

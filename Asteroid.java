@@ -1,6 +1,9 @@
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.util.Random;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 public class Asteroid {
@@ -8,6 +11,8 @@ public class Asteroid {
 	public boolean hit = false;
 	public static boolean render = false;
 	static Random rng = new Random();
+	
+	Image asteroid2 = new Image("Asteroid2.png");
 	
 	int x, y;   
 	int w, h;   
@@ -56,8 +61,14 @@ public class Asteroid {
 	public void render(GraphicsContext gc)
 	{
 		if(!UFO.transition_planet) {
-			gc.setFill(Color.SADDLEBROWN);
-			gc.fillRect(x,  y,  w,  h);
+			double rotationRequired = Math.toRadians (45);
+			double locationX = asteroid2.getWidth() / 2;
+			double locationY = asteroid2.getHeight() / 2;
+			AffineTransform tx = AffineTransform.getRotateInstance(rotationRequired, locationX, locationY);
+			AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+
+			// Drawing the rotated image at the required drawing locations
+			gc.drawImage(asteroid2, x, y, w, h);
 		}
 	}
 	
