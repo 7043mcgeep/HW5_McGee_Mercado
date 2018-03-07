@@ -40,7 +40,7 @@ public class Asteroid {
 		x += vx;
 		
 		// Only resets them to the right of the screen if user has not beaten level yet.
-		if (x+w < 0 && !UFO.beat_dodge) {
+		if (x+w < 0 && UFO.waves < 2) {
 			x = UFO.WIDTH + random;
 			fullPass = true;
 		}

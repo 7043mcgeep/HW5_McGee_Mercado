@@ -13,9 +13,9 @@ import javafx.util.Duration;
 import javafx.scene.text.Font;
 	
 /**
- Rene Mercado
- Dodge the alien
- SURVIVE or else...
+ Authors: Patrick McGee
+ 		  Rene Mercado
+ SPACE PERSON
  */
 
 public class UFO extends Application {
@@ -24,8 +24,10 @@ public class UFO extends Application {
 	static final int WIDTH = 1400;
 	static final int HEIGHT = 650;
 	public static int waves = 0;
+	public boolean w_1, w_2, w_3;
 	public boolean hit;
 	public int passCount = 0;
+	int wait = 0;
 	
 	public static boolean asteroid_stage = true;
 	public static boolean beat_dodge;
@@ -34,6 +36,7 @@ public class UFO extends Application {
 	
 	static Font font = Font.loadFont(UFO.class.getResource("PressStart2P.ttf").toExternalForm(), 32);
 	static Font fontSmall = Font.loadFont(UFO.class.getResource("PressStart2P.ttf").toExternalForm(), 22);
+	static Font fontSmaller = Font.loadFont(UFO.class.getResource("PressStart2P.ttf").toExternalForm(), 12);
 
 	Asteroid[] asteroids = new Asteroid[50];
 	Player p =  new Player();
@@ -83,7 +86,7 @@ public class UFO extends Application {
 				asteroids[k].hit = false;
 				asteroids[k].fullPass = false;
 			}
-			if(waves < 3)
+			if(waves < 4)
 				waves++;
 			else
 				waves = 0;
@@ -91,11 +94,20 @@ public class UFO extends Application {
 			passCount = 0;
 		}
 		
-		if(waves == 2)
+		if(waves == 3)
 			beat_dodge = true;
 				
 		for (Asteroid b: asteroids)
 			b.move();
+		
+		if(waves == 0)
+			w_1 = true;
+		
+		if(waves == 1)
+			w_2 = true;
+		
+		if(waves == 2)
+			w_3 = true;
 	}
 
 	// Draw the game world.
@@ -114,17 +126,39 @@ public class UFO extends Application {
 				for (Asteroid b: asteroids)
 					b.render(gc);
 					
+				if(w_1) {
+					gc.setFill(Color.WHITE);
+					gc.setFont(font);
+					gc.fillText("WAVE 1", WIDTH/3, 50);
+				}
+				
+				if(w_2) {
+					w_1 = false;
+					gc.setFill(Color.WHITE);
+					gc.setFont(font);
+					gc.fillText("WAVE 2", WIDTH/3, 50);
+				}
+				
+				if(w_3) {
+					w_2 = false;
+					gc.setFill(Color.WHITE);
+					gc.setFont(font);
+					gc.fillText("WAVE 3", WIDTH/3, 50);
+				}
+				
 				if(beat_dodge) {
-					if(waves == 3) {
-						Player.landing_sequence = true;
+						transition_planet = true;			// Stop rendering new asteroids
+						Player.landing_sequence = true;		// Advance player
 						gc.setFill(Color.YELLOW);
 						gc.setFont(font);
-						for(int i = 0; i < 4; i++) {
+						if(wait < 260) {
+							wait++;
 							if(currTime % 2 == 0)
 								gc.fillText("CRASH LANDING.\nBRACE FOR IMPACT.", WIDTH/3, HEIGHT/2);
 						}
-						beat_dodge = false;
-					}
+						//else
+							//
+				
 				}	
 				
 				// Text goes last to overlay previous items.
@@ -137,8 +171,8 @@ public class UFO extends Application {
 				if(!transition_planet) {
 					if(currTime % 2 == 0) {
 						gc.setFill(Color.RED);
-						gc.setFont(fontSmall);
-						gc.fillText("FUEL LOW", WIDTH/3+100, 50);
+						gc.setFont(fontSmaller);
+						gc.fillText("FUEL LOW", 150, HEIGHT-25);
 					}
 				}
 				
