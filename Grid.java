@@ -1,5 +1,6 @@
 import javafx.geometry.BoundingBox;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 class Grid
@@ -12,9 +13,12 @@ class Grid
 	public static final int MHEIGHT = 15;
 	int map[][] = new int[MWIDTH][MHEIGHT];
 	static final int CELLSIZE = 40; // Number of pixels per map cell
+	
+	Image block; // should be CELLSIZE by CELLSIZE image
 
-	Grid()
+	Grid(Image b1)
 	{
+		block = b1;
 		for (int row = 0; row < MHEIGHT; row++)
 		 for (int col = 0; col < MWIDTH; col++)
 			map[col][row] = 0;
@@ -127,13 +131,13 @@ class Grid
 	{
 		gc.setFill(Color.BLUE);
 		// Just draw visible blocks
-		int col1 = (Scroll.vleft)/CELLSIZE;
-		int col2 = (Scroll.vleft + Scroll.VWIDTH)/CELLSIZE;
+		int col1 = (LaunchSpacePerson.vleft)/CELLSIZE;
+		int col2 = (LaunchSpacePerson.vleft + LaunchSpacePerson.WIDTH)/CELLSIZE;
 		if (col2 >= MWIDTH)
 			col2 = MWIDTH-1;
 		for (int row = 0; row < MHEIGHT; row++)
 		 for (int col = col1; col <= col2; col++)
 			if (map[col][row] == 1)
-				gc.fillRect(col*CELLSIZE-Scroll.vleft, row*CELLSIZE, CELLSIZE, CELLSIZE);
+				gc.drawImage(block, col*CELLSIZE-LaunchSpacePerson.vleft, row*CELLSIZE, CELLSIZE, CELLSIZE);
 	}
 }

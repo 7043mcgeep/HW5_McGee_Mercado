@@ -44,7 +44,7 @@ class HeroSprite
 
 	public void render(GraphicsContext gc)
 	{
-		gc.drawImage(image, locx-Scroll.vleft, locy, width, height);
+		gc.drawImage(image, locx-LaunchSpacePerson.vleft, locy, width, height);
 	}
 
 	public void update()

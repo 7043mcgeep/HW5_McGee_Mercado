@@ -19,7 +19,7 @@ import javafx.scene.text.Font;
  SPACE PERSON
  */
 
-public class UFO extends Application {
+public class LaunchSpacePerson extends Application {
 	final String appName = "Space Person";
 	final int FPS = 30; // frames per second
 	static final int WIDTH = 1400;
@@ -39,18 +39,17 @@ public class UFO extends Application {
 	HeroSprite hero;
 	Grid grid;
 	Image background;
-	Flower flowers[] = new Flower[5];
-	BFly flies[] = new BFly[2];
+	Rock rocks[] = new Rock[5];
 	
 	public static boolean asteroid_stage = true;
 	public static boolean beat_dodge;
 	public static boolean transition_planet = false;
 	public static boolean planet_stage = false;
 	
-	static Font font = Font.loadFont(UFO.class.getResource("PressStart2P.ttf").toExternalForm(), 32);
-	static Font fontSmall = Font.loadFont(UFO.class.getResource("PressStart2P.ttf").toExternalForm(), 22);
-	static Font fontSmaller = Font.loadFont(UFO.class.getResource("PressStart2P.ttf").toExternalForm(), 12);
-
+	static Font font = Font.loadFont(LaunchSpacePerson.class.getResource("PressStart2P.ttf").toExternalForm(), 32);
+	static Font fontSmall = Font.loadFont(LaunchSpacePerson.class.getResource("PressStart2P.ttf").toExternalForm(), 22);
+	static Font fontSmaller = Font.loadFont(LaunchSpacePerson.class.getResource("PressStart2P.ttf").toExternalForm(), 12);
+	
 	Asteroid[] asteroids = new Asteroid[50];
 	Player p =  new Player();
 	Score score;
@@ -63,25 +62,27 @@ public class UFO extends Application {
 		for (int i = 0; i < Grid.MWIDTH; i++)
 			grid.setBlock(i, Grid.MHEIGHT-1);
 
-		// Now place specific blocks (depends on current map size)
+		// Place blocks
+		grid.setBlock(6,13);
 		grid.setBlock(7,13);
-		grid.setBlock(8,13); grid.setBlock(8,12);
+		grid.setBlock(8,13); grid.setBlock(8,12); grid.setBlock(8,11); 
 		grid.setBlock(9,13); grid.setBlock(9,12); grid.setBlock(9,11);
 		grid.setBlock(10,13);
-		grid.setBlock(14,10); grid.setBlock(15,10);
+		grid.setBlock(14,10);
 		grid.setBlock(22,13);
 		grid.setBlock(24,13);
-		grid.setBlock(25,11); grid.setBlock(26,11);
-		grid.setBlock(23,9); grid.setBlock(24,9);
-		grid.setBlock(25,7); grid.setBlock(26,7);
-		grid.setBlock(22,5); grid.setBlock(23,5); grid.setBlock(24,5);
-		flowers[0] = new Flower(120,538,100,0);
-		flowers[1] = new Flower(180,538,100,20);
-		flowers[2] = new Flower(240,538,100,40);
-		flowers[3] = new Flower(1300,538,120,30);
-		flowers[4] = new Flower(1360,538,120,0);
-		flies[0] = new BFly(140,240);
-		flies[1] = new BFly(766,174);
+		grid.setBlock(25,11);
+		grid.setBlock(26, 12);
+		grid.setBlock(27, 12);
+		grid.setBlock(28, 12);
+		grid.setBlock(29, 12);
+		grid.setBlock(31, 10);
+		grid.setBlock(32, 10);
+		rocks[0] = new Rock(0,250,100,0);
+		rocks[1] = new Rock(400,200,100,20);
+		rocks[2] = new Rock(100,300,100,40);
+		rocks[3] = new Rock(1000,200,120,30);
+		rocks[4] = new Rock(1200,250,120,0);
 	}
 	
 	/**
@@ -96,16 +97,13 @@ public class UFO extends Application {
 		score = new Score();
 		lives = new Lives();
 		
-		background = new Image("back.png");
+		background = new Image("mars.jpg");
 		Image guyImage = new Image("Kn1AFh22.gif");
-		Image blockImage = new Image("block.png");
-		Image f1 = new Image("flwrm.png");
-		Image f2 = new Image("flwrl.png");
-		Image f3 = new Image("flwrr.png");
-		Image b1 = new Image("bfly1.png");
-		Image b2 = new Image("bfly2.png");
-		Flower.setImages(f1,f2,f3);
-		BFly.setImages(b1,b2);
+		Image blockImage = new Image("ground.png");
+		Image r1 = new Image("rock_glow.gif");
+		Image r2 = new Image("rock_glow2.gif");
+		Image r3 = new Image("rock_glow3.gif");
+		Rock.setImages(r1,r2,r3);
 
 		grid = new Grid(blockImage);
 		hero = new HeroSprite(grid,100,499,guyImage);
@@ -120,10 +118,9 @@ public class UFO extends Application {
 		
 		if(planet_stage) {
 			hero.update();
-			for (int i = 0; i < flowers.length; i++)
-				flowers[i].update();
-			for (int i = 0; i < flies.length; i++)
-				flies[i].update();
+			for (int i = 0; i < rocks.length; i++)
+				rocks[i].update();
+
 			checkScrolling();
 		}
 		
@@ -153,8 +150,6 @@ public class UFO extends Application {
 			}
 			if(waves < 4)
 				waves++;
-			else
-				waves = 0;
 
 			passCount = 0;
 		}
@@ -279,12 +274,15 @@ public class UFO extends Application {
 			int cut = (vleft/2) % BWIDTH;
 			gc.drawImage(background, -cut, 0);
 			gc.drawImage(background, BWIDTH-cut, 0);
+			
+			for (int i = 0; i < rocks.length; i++)
+				rocks[i].render(gc);
+			
 			grid.render(gc);
 			hero.render(gc);
-			for (int i = 0; i < flowers.length; i++)
-				flowers[i].render(gc);
-			for (int i = 0; i < flies.length; i++)
-				flies[i].render(gc);
+			gc.setFill(Color.WHITE);
+			gc.setFont(fontSmall);
+			gc.fillText("\"Weird... no ammo.\nAnd no enemies to fight...\nMaybe in the final version.\"", WIDTH/3, 100);
 		}
 			
 		// For now, always render score and current time.
@@ -341,13 +339,37 @@ public class UFO extends Application {
 			e -> {
 				KeyCode c = e.getCode();
 				switch (c) {
-					case W: p.setUpKey(true);
+					case W: 
+						if(planet_stage) {
+							hero.jmp = 1;
+						}
+						else
+							p.setUpKey(true);
 								break;
-					case S: p.setDownKey(true);
+					case S:
+						if(planet_stage) {
+
+						}
+						else
+							p.setDownKey(true);
 								break;
-					case D: p.setRightKey(true);
+					case D:
+						if(planet_stage) {
+							Image guyImage = new Image("34JowqG.gif");
+							hero = new HeroSprite(grid,hero.locx,hero.locy,guyImage);
+							hero.dir = 2;
+						}
+						else
+							p.setRightKey(true);
 								break;
-					case A: p.setLeftKey(true);
+					case A:
+						if(planet_stage) {
+							Image guyleftImage = new Image("34JowqGleft.gif");
+							hero = new HeroSprite(grid,hero.locx,hero.locy,guyleftImage);
+							hero.dir = 1;
+						}
+						else
+							p.setLeftKey(true);
 								break;
 					default:
 								break;
@@ -359,13 +381,17 @@ public class UFO extends Application {
 				e -> {
 					KeyCode c = e.getCode();
 					switch (c) {
-						case W: p.setUpKey(false);
+						case W:
+							p.setUpKey(false);
 									break;
-						case S: p.setDownKey(false);
+						case S:
+							p.setDownKey(false);
 									break;
-						case D: p.setRightKey(false);
+						case D:
+							p.setRightKey(false);
 									break;
-						case A: p.setLeftKey(false);
+						case A:
+							p.setLeftKey(false);
 									break;
 						default:
 									break;

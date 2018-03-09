@@ -1,7 +1,7 @@
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
-class Flower
+class Rock
 {
 	static Image mid,left,right;
 	Image image;
@@ -13,7 +13,7 @@ class Flower
 	final static int MID = 3;
 	int state;
 
-	Flower(int x, int y, int d, int p)
+	Rock(int x, int y, int d, int p)
 	{
 		locx = x; locy = y;
 		delay = d;
@@ -31,7 +31,7 @@ class Flower
 
 	public void render(GraphicsContext gr)
 	{
-		gr.drawImage(image,locx-2*Scroll.vleft, locy);
+		gr.drawImage(image,locx-2*LaunchSpacePerson.vleft, locy);
 	}
 
 	public void update()

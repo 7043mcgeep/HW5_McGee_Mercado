@@ -6,8 +6,8 @@ public class Score {
    int score = 0;
    public void render(GraphicsContext gc){
 	   gc.setFill(Color.WHITE);
-	   gc.setFont(UFO.fontSmall);
-	   gc.fillText(""+score, UFO.WIDTH-300, 50);
+	   gc.setFont(LaunchSpacePerson.fontSmall);
+	   gc.fillText(""+score, LaunchSpacePerson.WIDTH-300, 50);
    }
 
 }

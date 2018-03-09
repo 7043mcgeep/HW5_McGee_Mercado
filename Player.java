@@ -25,7 +25,7 @@ public class Player {
    public void move(){
 	   if (upKey && y > 0 && !landing_sequence)
 	       y -= SPEED;
-	   if (downKey && y < UFO.HEIGHT-w && !landing_sequence)
+	   if (downKey && y < LaunchSpacePerson.HEIGHT-w && !landing_sequence)
 	       y += SPEED;
 	   if(landing_sequence)
 		   x += SPEED*1.5;
@@ -64,12 +64,12 @@ public class Player {
 	}
    
    public void render(GraphicsContext gc){
-	   if(x+w < UFO.WIDTH) {
+	   if(x+w < LaunchSpacePerson.WIDTH) {
 		   //gc.setFill(Color.WHITE);
 		   //gc.fillRect(x, y, w, h);
 		   gc.drawImage(ship, x, y, w, h);
 	   }
 	   else
-		   UFO.transition_planet = true;    // Begin transition. Do not render player off-screen.
+		   LaunchSpacePerson.transition_planet = true;    // Begin transition. Do not render player off-screen.
    }
 }

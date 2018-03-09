@@ -1,10 +1,6 @@
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.util.Random;
-
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
 
 public class Asteroid {
 
@@ -12,7 +8,7 @@ public class Asteroid {
 	public static boolean render = false;
 	static Random rng = new Random();
 	
-	Image asteroid2 = new Image("Asteroid2.png");
+	Image asteroid1 = new Image("Asteroid1.png");
 	
 	int x, y;   
 	int w, h;   
@@ -31,7 +27,7 @@ public class Asteroid {
 		vx = -5;
 		
 		// Choose random position on the Canvas
-		x = UFO.WIDTH+500 + rng.nextInt(1001);
+		x = LaunchSpacePerson.WIDTH+500 + rng.nextInt(1001);
 		y = 5 + rng.nextInt(1001);
 	}
 	
@@ -40,8 +36,8 @@ public class Asteroid {
 		x += vx;
 		
 		// Only resets them to the right of the screen if user has not beaten level yet.
-		if (x+w < 0 && UFO.waves < 2) {
-			x = UFO.WIDTH + random;
+		if (x+w < 0 && LaunchSpacePerson.waves < 2) {
+			x = LaunchSpacePerson.WIDTH + random;
 			fullPass = true;
 		}
 		
@@ -60,15 +56,13 @@ public class Asteroid {
 	
 	public void render(GraphicsContext gc)
 	{
-		if(!UFO.transition_planet) {
-			double rotationRequired = Math.toRadians (45);
-			double locationX = asteroid2.getWidth() / 2;
-			double locationY = asteroid2.getHeight() / 2;
-			AffineTransform tx = AffineTransform.getRotateInstance(rotationRequired, locationX, locationY);
-			AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+		if(!LaunchSpacePerson.transition_planet) {
 
 			// Drawing the rotated image at the required drawing locations
-			gc.drawImage(asteroid2, x, y, w, h);
+			gc.drawImage(asteroid1, x, y, w, h);
+			
+			//gc.setFill(Color.AQUA);
+			//gc.fillOval(x, y, w, h);
 		}
 	}
 	
