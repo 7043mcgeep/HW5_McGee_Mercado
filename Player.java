@@ -12,18 +12,30 @@ public class Player {
    static boolean landing_sequence = false;
    static boolean render_transition = false;
    static boolean moved = false;
+   
+   static int wait_blink = 0;
+   static int blink_ct = 0;
 
    final static int w = 70;
    final static int h = 70;
    final static int SPEED = 4;
    static Image ship = new Image("ship.gif");
+   static Image ship_dead = new Image("ship_dead.gif");
 
 	public BoundingBox bounds() {
 		return new BoundingBox(x-5, y-5, w-20, h-20);
 	}
 	
 	public BoundingBox bounds2() {
-		return new BoundingBox(x+10, y+10, w*.9, h*.9);
+		return new BoundingBox(x+40, y+10, w-68, h-34);
+	}
+	
+	public BoundingBox bounds3() {
+		return new BoundingBox(x+50, y+19, w-70, h-52);
+	}
+	
+	public BoundingBox bounds4() {
+		return new BoundingBox(x+55, y+24, w-68, h-62);
 	}
    
    public Player(){
@@ -33,9 +45,9 @@ public class Player {
 
    public void move(){
 	   if (upKey && y > 0 && !landing_sequence)
-	       y -= SPEED;
+	       y -= SPEED+2;
 	   if (downKey && y < LaunchSpacePerson.HEIGHT-w && !landing_sequence)
-	       y += SPEED;
+	       y += SPEED+2;
 	   if(landing_sequence)
 		   x += SPEED*1.5;
 	   if(render_transition) {
@@ -64,10 +76,34 @@ public class Player {
    
    public void render(GraphicsContext gc){
 	   if(x+w < LaunchSpacePerson.WIDTH) {
-		   gc.drawImage(ship, x, y, w, h);
-		   gc.setStroke(Color.WHITE);
-		   gc.strokeRect(x+25, y+4, w-60, h-22);
-		   gc.strokeRect(x+10, y+10, w*.9, h*.9);
+		   if(!LaunchSpacePerson.player_blink)
+			   gc.drawImage(ship, x, y, w, h);
+		   
+		   if(LaunchSpacePerson.player_blink && blink_ct < 45) {
+			   
+			   // Wait for some time
+			   if(wait_blink < 50) {
+				   gc.drawImage(ship_dead, x, y, w, h);
+				   System.out.println(wait_blink);
+			   }
+			   wait_blink++;
+			   blink_ct++;
+		   }
+		   else {
+			   LaunchSpacePerson.player_blink = false;
+			   wait_blink = 0;
+			   blink_ct = 0;
+			   
+		   }
+		   
+		   if(LaunchSpacePerson.debug_mode) {
+			   gc.setStroke(Color.WHITE);
+			   gc.strokeRect(x+29, y+4, w-65, h-22);
+			   gc.setStroke(Color.RED);
+			   gc.strokeRect(x+40, y+10, w-68, h-34);
+			   gc.strokeRect(x+50, y+19, w-70, h-52);
+			   gc.strokeRect(x+55, y+24, w-68, h-62);
+		   }
 	   }
 	   else
 		   LaunchSpacePerson.transition_planet = true;    // Begin transition. Do not render player off-screen.

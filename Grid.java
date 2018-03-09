@@ -9,7 +9,7 @@ class Grid
 	// The Grid know how many pixels each block is, so can relate pixel-based
 	// coords to the map.
 
-	public static final int MWIDTH = 40;
+	public static final int MWIDTH = 250;
 	public static final int MHEIGHT = 17;
 	int map[][] = new int[MWIDTH][MHEIGHT];
 	static final int CELLSIZE = 40; // Number of pixels per map cell

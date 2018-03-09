@@ -60,7 +60,7 @@ class HeroSprite
 			dx = 0;
 		if ((state == STAND) && (jmp == 1))
 		{
-			dy = -28;
+			dy = -45;
 			state = JUMP;
 			jmp = 0;
 		}

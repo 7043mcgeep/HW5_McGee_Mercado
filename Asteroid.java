@@ -3,6 +3,7 @@ import java.util.Random;
 import javafx.geometry.BoundingBox;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 
 public class Asteroid {
 
@@ -10,7 +11,7 @@ public class Asteroid {
 	public static boolean render = false;
 	static Random rng = new Random();
 	
-	Image asteroid1 = new Image("Asteroid1.png");
+	Image asteroid1 = new Image("asteroid_3.png");
 	
 	int x, y;   
 	int w, h;   
@@ -18,7 +19,7 @@ public class Asteroid {
 	public boolean fullPass;
 	
 	public BoundingBox bounds() {
-		return new BoundingBox(x+10, y+10, w*.9, h*.9);
+		return new BoundingBox(x+5, y+5, w-10, h-10);
 	}
 	
 	Random r = new Random();
@@ -55,7 +56,11 @@ public class Asteroid {
 
 			// Drawing the rotated image at the required drawing locations
 			gc.drawImage(asteroid1, x, y, w, h);
-			gc.fillRect(x+10, y+10, w-20, h-20);
+			
+			if(LaunchSpacePerson.debug_mode) {
+				gc.setStroke(Color.AQUA);
+				gc.strokeRect(x+2, y+2, w-4, h-4);
+			}
 		}
 	}
 	
