@@ -41,10 +41,10 @@ public class LaunchSpacePerson extends Application {
 	Image background;
 	Rock rocks[] = new Rock[5];
 	
-	public static boolean asteroid_stage = true;
+	public static boolean asteroid_stage = false;
 	public static boolean beat_dodge;
 	public static boolean transition_planet = false;
-	public static boolean planet_stage = false;
+	public static boolean planet_stage = true;
 	
 	static Font font = Font.loadFont(LaunchSpacePerson.class.getResource("PressStart2P.ttf").toExternalForm(), 32);
 	static Font fontSmall = Font.loadFont(LaunchSpacePerson.class.getResource("PressStart2P.ttf").toExternalForm(), 22);
@@ -61,6 +61,14 @@ public class LaunchSpacePerson extends Application {
 		// Put in a ground level
 		for (int i = 0; i < Grid.MWIDTH; i++)
 			grid.setBlock(i, Grid.MHEIGHT-1);
+		
+		// Put in a ground level
+		for (int i = 0; i < Grid.MWIDTH; i++)
+			grid.setBlock(i, Grid.MHEIGHT-2);
+		
+		// Put in a ground level
+		for (int i = 0; i < Grid.MWIDTH; i++)
+			grid.setBlock(i, Grid.MHEIGHT-3);
 
 		// Place blocks
 		grid.setBlock(6,13);
@@ -128,7 +136,7 @@ public class LaunchSpacePerson extends Application {
 		
 		for (int k = 0; k < asteroids.length; k++) {
 			// Check if player is hit by the asteroid
-			if (p.collision(asteroids[k]) && asteroids[k].hit == false) {		// Check collision
+			if (p.bounds().intersects(asteroids[k].bounds()) && asteroids[k].hit == false) {		// Check collision
 				lives.lives -= 1;
 				asteroids[k].hit = true;
 			}
@@ -380,21 +388,35 @@ public class LaunchSpacePerson extends Application {
 		scene.setOnKeyReleased(
 				e -> {
 					KeyCode c = e.getCode();
-					switch (c) {
-						case W:
-							p.setUpKey(false);
-									break;
-						case S:
-							p.setDownKey(false);
-									break;
-						case D:
-							p.setRightKey(false);
-									break;
-						case A:
-							p.setLeftKey(false);
-									break;
-						default:
-									break;
+					if (planet_stage && (c == KeyCode.D)) {
+						Image guyImage = new Image("Kn1AFh22.gif");
+						hero = new HeroSprite(grid,hero.locx,hero.locy,guyImage);
+						hero.dir = 0;
+					}
+					
+					else if(planet_stage && (c == KeyCode.A)) {
+						Image guyImage = new Image("stagnant_left.gif");
+						hero = new HeroSprite(grid,hero.locx,hero.locy,guyImage);
+						hero.dir = 0;
+					}
+					
+					else {
+						switch (c) {
+							case W:
+								p.setUpKey(false);
+										break;
+							case S:
+								p.setDownKey(false);
+										break;
+							case D:
+								p.setRightKey(false);
+										break;
+							case A:
+								p.setLeftKey(false);
+										break;
+							default:
+										break;
+						}
 					}
 				}
 			);

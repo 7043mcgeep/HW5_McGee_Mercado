@@ -1,3 +1,4 @@
+import javafx.geometry.BoundingBox;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -5,6 +6,7 @@ import javafx.scene.paint.Color;
 public class Player {
    int x, y; 
 
+   Asteroid asteroid;
    boolean upKey = false, downKey = false, rightKey = false, leftKey = false;
 
    static boolean landing_sequence = false;
@@ -16,6 +18,13 @@ public class Player {
    final static int SPEED = 4;
    static Image ship = new Image("ship.gif");
 
+	public BoundingBox bounds() {
+		return new BoundingBox(x-5, y-5, w-20, h-20);
+	}
+	
+	public BoundingBox bounds2() {
+		return new BoundingBox(x+10, y+10, w*.9, h*.9);
+	}
    
    public Player(){
       x = 50;
@@ -52,22 +61,13 @@ public class Player {
    public void setLeftKey(Boolean val){
 	   leftKey = val;
    }
-   public boolean collision(Asteroid b)
-	{
-		if ((this.x > b.x + b.w) ||
-		    (this.x + 25 < b.x)  ||
-		    (this.y > b.y + b.h) ||
-		    (this.y + 25 < b.y))    
-			return false;
-		else 
-			return true;
-	}
    
    public void render(GraphicsContext gc){
 	   if(x+w < LaunchSpacePerson.WIDTH) {
-		   //gc.setFill(Color.WHITE);
-		   //gc.fillRect(x, y, w, h);
 		   gc.drawImage(ship, x, y, w, h);
+		   gc.setStroke(Color.WHITE);
+		   gc.strokeRect(x+25, y+4, w-60, h-22);
+		   gc.strokeRect(x+10, y+10, w*.9, h*.9);
 	   }
 	   else
 		   LaunchSpacePerson.transition_planet = true;    // Begin transition. Do not render player off-screen.

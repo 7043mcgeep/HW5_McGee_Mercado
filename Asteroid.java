@@ -1,4 +1,6 @@
 import java.util.Random;
+
+import javafx.geometry.BoundingBox;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
@@ -14,6 +16,10 @@ public class Asteroid {
 	int w, h;   
 	int vx, vy;
 	public boolean fullPass;
+	
+	public BoundingBox bounds() {
+		return new BoundingBox(x+10, y+10, w*.9, h*.9);
+	}
 	
 	Random r = new Random();
 	int Low = 100;
@@ -43,26 +49,13 @@ public class Asteroid {
 		
 	}
 	
-	public boolean overlaps(Asteroid b)
-	{
-		if ((this.x > b.x + b.w) ||
-		    (this.x + this.w < b.x) ||
-		    (this.y > b.y + b.h) ||
-		    (this.y + this.h < b.y))    
-		return true;
-		else 
-			return false;
-	}
-	
 	public void render(GraphicsContext gc)
 	{
 		if(!LaunchSpacePerson.transition_planet) {
 
 			// Drawing the rotated image at the required drawing locations
 			gc.drawImage(asteroid1, x, y, w, h);
-			
-			//gc.setFill(Color.AQUA);
-			//gc.fillOval(x, y, w, h);
+			gc.fillRect(x+10, y+10, w-20, h-20);
 		}
 	}
 	
