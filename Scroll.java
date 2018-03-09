@@ -6,14 +6,16 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
 /**
  * A simple game demonstrating scrolling landscape
- * Basic movement - no images, no score, no bad guys
+ *
+ * Background scenery with parallax scroll and animated
+ * foreground scenery
  *
  * @author mike slattery
  * @version feb 2016
@@ -23,20 +25,35 @@ public class Scroll extends Application {
 	final int FPS = 25; // frames per second
 	final static int VWIDTH = 800;
 	final static int VHEIGHT = 600;
-	public static final int SCROLL = 30;  // Set edge limit for scrolling
+	final static int BWIDTH = 1000;
+	final static int SCROLL = 400;  // Set edge limit for scrolling
 	public static int vleft = 0;	// Pixel coord of left edge of viewable
 									// area (used for scrolling)
-
+	
 	HeroSprite hero;
 	Grid grid;
+	Image background;
+	Flower flowers[] = new Flower[5];
+	BFly flies[] = new BFly[2];
 	
 	/**
 	 * Set up initial data structures/values
 	 */
 	void initialize()
 	{
-		grid = new Grid();
-		hero = new HeroSprite(grid,100,499);
+		background = new Image("back.png");
+		Image guyImage = new Image("Kn1AFh22.gif");
+		Image blockImage = new Image("block.png");
+		Image f1 = new Image("flwrm.png");
+		Image f2 = new Image("flwrl.png");
+		Image f3 = new Image("flwrr.png");
+		Image b1 = new Image("bfly1.png");
+		Image b2 = new Image("bfly2.png");
+		Flower.setImages(f1,f2,f3);
+		BFly.setImages(b1,b2);
+
+		grid = new Grid(blockImage);
+		hero = new HeroSprite(grid,100,499,guyImage);
 		setLevel1();
 	}
 	
@@ -50,6 +67,7 @@ public class Scroll extends Application {
 		grid.setBlock(7,13);
 		grid.setBlock(8,13); grid.setBlock(8,12);
 		grid.setBlock(9,13); grid.setBlock(9,12); grid.setBlock(9,11);
+		grid.setBlock(10,13);
 		grid.setBlock(14,10); grid.setBlock(15,10);
 		grid.setBlock(22,13);
 		grid.setBlock(24,13);
@@ -57,6 +75,13 @@ public class Scroll extends Application {
 		grid.setBlock(23,9); grid.setBlock(24,9);
 		grid.setBlock(25,7); grid.setBlock(26,7);
 		grid.setBlock(22,5); grid.setBlock(23,5); grid.setBlock(24,5);
+		flowers[0] = new Flower(120,538,100,0);
+		flowers[1] = new Flower(180,538,100,20);
+		flowers[2] = new Flower(240,538,100,40);
+		flowers[3] = new Flower(1300,538,120,30);
+		flowers[4] = new Flower(1360,538,120,0);
+		flies[0] = new BFly(140,240);
+		flies[1] = new BFly(766,174);
 	}
 	
 	void setHandlers(Scene scene)
@@ -66,12 +91,24 @@ public class Scroll extends Application {
 					KeyCode key = e.getCode();
 					switch (key)
 					{
-					case J: hero.dir = 1;
+					case LEFT:
+					case A: 
+						Image guyleftImage = new Image("34JowqGleft.gif");
+						hero = new HeroSprite(grid,hero.locx,hero.locy,guyleftImage);
+					hero.dir = 1;
+					
 						break;
-					case K: hero.dir = 2;
+					case RIGHT:
+					case D:
+						Image guyImage = new Image("34JowqG.gif");
+						hero = new HeroSprite(grid,hero.locx,hero.locy,guyImage);
+						hero.dir = 2;
+					
+					
 						break;
 					// add a Jump key here 
-					case A: hero.jmp = 1;
+					case SPACE:
+					case W: hero.jmp = 1;
 						break;
 					default:
 						break;
@@ -80,8 +117,12 @@ public class Scroll extends Application {
 		scene.setOnKeyReleased(
 				e -> {
 					KeyCode key = e.getCode();
-					if ((key == KeyCode.J)||(key == KeyCode.K))
+					if ((key == KeyCode.A)||(key == KeyCode.LEFT)||
+							(key == KeyCode.D)||(key == KeyCode.RIGHT)) {
+						Image guyImage = new Image("Kn1AFh22.gif");
+						hero = new HeroSprite(grid,hero.locx,hero.locy,guyImage);
 						hero.dir = 0;
+					}
 				});
 	}
 	
@@ -92,6 +133,10 @@ public class Scroll extends Application {
 	public void update()
 	{
 		hero.update();
+		for (int i = 0; i < flowers.length; i++)
+			flowers[i].update();
+		for (int i = 0; i < flies.length; i++)
+			flies[i].update();
 		checkScrolling();
 	}
 	
@@ -116,11 +161,25 @@ public class Scroll extends Application {
 	 *  Draw the game world
 	 */
 	void render(GraphicsContext gc) {
-		gc.setFill(Color.WHITE);
-		gc.fillRect(0.0, 0.0, VWIDTH, VHEIGHT);
-		
+		// We're going to cover the whole background,
+		// so there's no reason to fill it first
+		//gc.setFill(Color.WHITE);
+		//gc.fillRect(0.0, 0.0, VWIDTH, VHEIGHT);
+		/*
+		 * To create the parallax effect, we reduce
+		 * the amount of shift for the background
+		 * Also use "% BWIDTH" to handle very wide
+		 * level maps (not actually needed for level 1)
+		 */
+		int cut = (vleft/2) % BWIDTH;
+		gc.drawImage(background, -cut, 0);
+		gc.drawImage(background, BWIDTH-cut, 0);
 		grid.render(gc);
 		hero.render(gc);
+		for (int i = 0; i < flowers.length; i++)
+			flowers[i].render(gc);
+		for (int i = 0; i < flies.length; i++)
+			flies[i].render(gc);
 	}
 	
 	

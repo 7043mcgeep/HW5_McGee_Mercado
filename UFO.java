@@ -6,6 +6,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -29,10 +30,22 @@ public class UFO extends Application {
 	public int passCount = 0;
 	int wait = 0;
 	
+	// Merging scroll
+	final static int BWIDTH = 2000;
+	final static int SCROLL = 400;  // Set edge limit for scrolling
+	public static int vleft = 0;	// Pixel coord of left edge of viewable
+									// area (used for scrolling)
+	
+	HeroSprite hero;
+	Grid grid;
+	Image background;
+	Flower flowers[] = new Flower[5];
+	BFly flies[] = new BFly[2];
+	
 	public static boolean asteroid_stage = true;
 	public static boolean beat_dodge;
 	public static boolean transition_planet = false;
-	public static boolean planet_stage = true;
+	public static boolean planet_stage = false;
 	
 	static Font font = Font.loadFont(UFO.class.getResource("PressStart2P.ttf").toExternalForm(), 32);
 	static Font fontSmall = Font.loadFont(UFO.class.getResource("PressStart2P.ttf").toExternalForm(), 22);
@@ -42,6 +55,34 @@ public class UFO extends Application {
 	Player p =  new Player();
 	Score score;
 	Lives lives;
+	
+	
+	public void setLevel1()
+	{
+		// Put in a ground level
+		for (int i = 0; i < Grid.MWIDTH; i++)
+			grid.setBlock(i, Grid.MHEIGHT-1);
+
+		// Now place specific blocks (depends on current map size)
+		grid.setBlock(7,13);
+		grid.setBlock(8,13); grid.setBlock(8,12);
+		grid.setBlock(9,13); grid.setBlock(9,12); grid.setBlock(9,11);
+		grid.setBlock(10,13);
+		grid.setBlock(14,10); grid.setBlock(15,10);
+		grid.setBlock(22,13);
+		grid.setBlock(24,13);
+		grid.setBlock(25,11); grid.setBlock(26,11);
+		grid.setBlock(23,9); grid.setBlock(24,9);
+		grid.setBlock(25,7); grid.setBlock(26,7);
+		grid.setBlock(22,5); grid.setBlock(23,5); grid.setBlock(24,5);
+		flowers[0] = new Flower(120,538,100,0);
+		flowers[1] = new Flower(180,538,100,20);
+		flowers[2] = new Flower(240,538,100,40);
+		flowers[3] = new Flower(1300,538,120,30);
+		flowers[4] = new Flower(1360,538,120,0);
+		flies[0] = new BFly(140,240);
+		flies[1] = new BFly(766,174);
+	}
 	
 	/**
 	 * Set up initial data structures/values
@@ -54,6 +95,21 @@ public class UFO extends Application {
 		p = new Player();
 		score = new Score();
 		lives = new Lives();
+		
+		background = new Image("back.png");
+		Image guyImage = new Image("Kn1AFh22.gif");
+		Image blockImage = new Image("block.png");
+		Image f1 = new Image("flwrm.png");
+		Image f2 = new Image("flwrl.png");
+		Image f3 = new Image("flwrr.png");
+		Image b1 = new Image("bfly1.png");
+		Image b2 = new Image("bfly2.png");
+		Flower.setImages(f1,f2,f3);
+		BFly.setImages(b1,b2);
+
+		grid = new Grid(blockImage);
+		hero = new HeroSprite(grid,100,499,guyImage);
+		setLevel1();
 	}
 
 	/**
@@ -61,6 +117,15 @@ public class UFO extends Application {
 	 */
 	int u_base = (int) System.currentTimeMillis();
 	void update() {
+		
+		if(planet_stage) {
+			hero.update();
+			for (int i = 0; i < flowers.length; i++)
+				flowers[i].update();
+			for (int i = 0; i < flies.length; i++)
+				flies[i].update();
+			checkScrolling();
+		}
 		
 		p.move();
 		
@@ -110,13 +175,30 @@ public class UFO extends Application {
 			w_3 = true;
 	}
 
+	void checkScrolling()
+	{
+		// Test if hero is at edge of view window and scroll appropriately
+		if (hero.locx() < (vleft+SCROLL))
+		{
+			vleft = hero.locx()-SCROLL;
+			if (vleft < 0)
+				vleft = 0;
+		}
+		if ((hero.locx() + hero.width()) > (vleft+WIDTH-SCROLL))
+		{
+			vleft = hero.locx()+hero.width()-WIDTH+SCROLL;
+			if (vleft > (grid.width()-WIDTH))
+				vleft = grid.width()-WIDTH;
+		}
+	}
+	
 	// Draw the game world.
 	int base = (int) System.currentTimeMillis();
 	void render(GraphicsContext gc) {
 		
 		int currTime = Timer.getTimeSec(base);
 		
-		if(asteroid_stage) {
+		if(asteroid_stage && !planet_stage) {
 				
 				// Black background
 				gc.setFill(Color.BLACK);
@@ -156,8 +238,8 @@ public class UFO extends Application {
 							if(currTime % 2 == 0)
 								gc.fillText("CRASH LANDING.\nBRACE FOR IMPACT.", WIDTH/3, HEIGHT/2);
 						}
-						//else
-							//
+						else
+							planet_stage = true;
 				
 				}	
 				
@@ -192,10 +274,17 @@ public class UFO extends Application {
 			Player.render_transition = true;
 		}	
 		
-		else if(planet_stage) {
-			// Bisque background
-			gc.setFill(Color.BISQUE);
-			gc.fillRect(0, 0, WIDTH, HEIGHT);
+		if(planet_stage) {
+			// Merging scroll
+			int cut = (vleft/2) % BWIDTH;
+			gc.drawImage(background, -cut, 0);
+			gc.drawImage(background, BWIDTH-cut, 0);
+			grid.render(gc);
+			hero.render(gc);
+			for (int i = 0; i < flowers.length; i++)
+				flowers[i].render(gc);
+			for (int i = 0; i < flies.length; i++)
+				flies[i].render(gc);
 		}
 			
 		// For now, always render score and current time.
