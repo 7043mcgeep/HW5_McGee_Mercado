@@ -37,7 +37,7 @@ class HeroSprite
 	 Image run = new Image("sprites/run.gif");
 	 Image runLeft = new Image("sprites/runLeft.gif");
 	 
-	public HeroSprite(Grid grid, int x, int y, Image m){
+	public HeroSprite(Grid grid, int x, int y){
 		// We use locx, locy to store the top-left corner
 		// of the sprite
 		//

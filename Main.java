@@ -14,10 +14,11 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.scene.text.Font;
 
-/**
- * @author Alex Gattone
- * @version Feb-March 2018
- */
+/*Authors: Patrick J. McGee
+ 		   Rene Mercado
+SPACE PERSON
+Dodge the asteroids and then fight intergalactic crime!
+*/
 public class Main extends Application {
 	
 	final static int FPS = 25; // frames per second
@@ -46,10 +47,10 @@ public class Main extends Application {
 	
 	public int            fuel_ct = 100;
 	public static boolean debug_mode = false;
-	public static boolean asteroid_stage = false;
+	public static boolean asteroid_stage = true;
 	public static boolean beat_dodge;
 	public static boolean transition_planet = false;
-	public static int     planet_stage = 1;
+	public static int     planet_stage = 0;
 	public static boolean player_blink = false;
 	public static boolean        left = false;
 	
@@ -187,7 +188,7 @@ public class Main extends Application {
 		Rock.setImages(r1,r2,r3);
 
 		grid = new Grid();
-		hero = new HeroSprite(grid,100,499,guyImage);
+		hero = new HeroSprite(grid,100,499);
 		setLevel1();
 	}
 
@@ -266,17 +267,20 @@ public class Main extends Application {
 					KeyCode key = e.getCode();
 					switch (key){
 					case A: 
-					case LEFT: hero.dir = 1;
+					case LEFT:
+						hero.dir = 1;
 						break;
 					case D:
 					case RIGHT: hero.dir = 2;
 						break;
 					case UP:
-					case W: hero.jmp = 1;
-						break;
+					case W:
+						if(planet_stage == 1) {	hero.jmp = 1; break; }
+						else {	p.setUpKey(true); break; }
 					case S:
-					case DOWN: hero.dir = 3;
-						break;
+					case DOWN:
+						if(planet_stage == 1) {	hero.dir = 3; break; }
+						else if (asteroid_stage){	p.setDownKey(true); break; }
 					case SHIFT: hero.spr = 1;
 						break;
 					case SPACE:
@@ -288,31 +292,39 @@ public class Main extends Application {
 		scene.setOnKeyReleased(
 				e -> {
 					KeyCode key = e.getCode();
-					if (key == KeyCode.D|| key == KeyCode.RIGHT) {
+					if (planet_stage == 1 && key == KeyCode.D|| key == KeyCode.RIGHT) {
 							hero.dir = 0;
 							left = false;
 					}
-					if(key == KeyCode.A || key == KeyCode.LEFT) {
+					if(planet_stage == 1 && key == KeyCode.A || key == KeyCode.LEFT) {
 							hero.dir = 0;
 							left = true;
 					}
 					if(key == KeyCode.S || key == KeyCode.DOWN) {
-						if(left) {
-							hero.dir = 0;
-							left = true;
-						}else {
-							hero.dir = 0;
-							left = false;
+						if(planet_stage == 1) {
+							if(left) {
+								hero.dir = 0;
+								left = true;
+							}else {
+								hero.dir = 0;
+								left = false;
+							}
 						}
+						else if(asteroid_stage)
+							p.setDownKey(false);
 					}
 					if(key == KeyCode.W || key == KeyCode.UP) {
-						if(left) {
-							hero.jmp = 0;
-							left = true;
-						}else {
-							hero.jmp = 0;
-							left = false;
+						if(planet_stage == 1) {
+							if(left) {
+								hero.jmp = 0;
+								left = true;
+							}else {
+								hero.jmp = 0;
+								left = false;
+							}
 						}
+						else if(asteroid_stage)
+							p.setUpKey(false);
 					} 
 					if(key == KeyCode.SHIFT)
 						hero.spr = 0;
