@@ -34,7 +34,7 @@ public class Asteroid {
 		vx = -5;
 		
 		// Choose random position on the Canvas
-		x = LaunchSpacePerson.WIDTH+500 + rng.nextInt(1001);
+		x = Main.VWIDTH+500 + rng.nextInt(1001);
 		y = 5 + rng.nextInt(1001);
 	}
 	
@@ -43,8 +43,8 @@ public class Asteroid {
 		x += vx;
 		
 		// Only resets them to the right of the screen if user has not beaten level yet.
-		if (x+w < 0 && LaunchSpacePerson.waves < 2) {
-			x = LaunchSpacePerson.WIDTH + random;
+		if (x+w < 0 && Main.waves < 2) {
+			x = Main.VWIDTH + random;
 			fullPass = true;
 		}
 		
@@ -52,12 +52,12 @@ public class Asteroid {
 	
 	public void render(GraphicsContext gc)
 	{
-		if(!LaunchSpacePerson.transition_planet) {
+		if(!Main.transition_planet) {
 
 			// Drawing the rotated image at the required drawing locations
 			gc.drawImage(asteroid1, x, y, w, h);
 			
-			if(LaunchSpacePerson.debug_mode) {
+			if(Main.debug_mode) {
 				gc.setStroke(Color.AQUA);
 				gc.strokeRect(x+2, y+2, w-4, h-4);
 			}

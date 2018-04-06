@@ -10,7 +10,7 @@ public class Lives {
 
    public void render(GraphicsContext gc){
 
-	   if(!LaunchSpacePerson.planet_stage) {
+	   if(Main.planet_stage != 1) {
 		   if(lives == 3) {
 			   gc.drawImage(ship_lives, 275, 25, 30, 30);
 			   gc.drawImage(ship_lives, 250, 25, 30, 30);
@@ -26,7 +26,7 @@ public class Lives {
 			   gc.drawImage(ship_lives, 225, 25, 30, 30);
 	   }
 		   
-       else if(LaunchSpacePerson.planet_stage) {
+       else if(Main.planet_stage == 1) {
     	   if(lives == 3) {
 			   gc.drawImage(planet_lives, 275, 25, 30, 30);
 			   gc.drawImage(planet_lives, 250, 25, 30, 30);

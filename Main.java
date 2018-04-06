@@ -9,22 +9,21 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
+import javafx.scene.transform.Affine;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.scene.text.Font;
-	
-/**
- Authors: Patrick J. McGee
- 		  Rene Mercado
- SPACE PERSON
- Dodge the asteroids and then fight intergalactic crime!
- */
 
-public class LaunchSpacePerson extends Application {
-	final String appName = "Space Person";
-	final int FPS = 30; // frames per second
-	static final int WIDTH = 1400;
-	static final int HEIGHT = 650;
+/**
+ * @author Alex Gattone
+ * @version Feb-March 2018
+ */
+public class Main extends Application {
+	
+	final static int FPS = 25; // frames per second
+	final static int VWIDTH = 1400;
+	final static int VHEIGHT = 800;
+	
 	public static int waves = 0;
 	public boolean w_1, w_2, w_3;
 	public boolean hit;
@@ -32,6 +31,7 @@ public class LaunchSpacePerson extends Application {
 	int wait = 0;
 	int blink_wait = 0;
 	static boolean world_coords = false;
+	public static double view_x=0, view_y=0;
 	
 	// Merging scroll
 	final static int BWIDTH = 1400;
@@ -51,11 +51,11 @@ public class LaunchSpacePerson extends Application {
 	public static boolean transition_planet = false;
 	public static int     planet_stage = 1;
 	public static boolean player_blink = false;
-	public boolean        left = false;
+	public static boolean        left = false;
 	
-	static Font font = Font.loadFont(LaunchSpacePerson.class.getResource("PressStart2P.ttf").toExternalForm(), 32);
-	static Font fontSmall = Font.loadFont(LaunchSpacePerson.class.getResource("PressStart2P.ttf").toExternalForm(), 22);
-	static Font fontSmaller = Font.loadFont(LaunchSpacePerson.class.getResource("PressStart2P.ttf").toExternalForm(), 12);
+	static Font font = Font.loadFont(Main.class.getResource("PressStart2P.ttf").toExternalForm(), 32);
+	static Font fontSmall = Font.loadFont(Main.class.getResource("PressStart2P.ttf").toExternalForm(), 22);
+	static Font fontSmaller = Font.loadFont(Main.class.getResource("PressStart2P.ttf").toExternalForm(), 12);
 	
 	Asteroid[] asteroids = new Asteroid[50];
 	Player p =  new Player();
@@ -259,143 +259,212 @@ public class LaunchSpacePerson extends Application {
 				b.move();
 		}
 	}
-
-	void checkScrolling()
-	{
+	
+	void setHandlers(Scene scene){
+		scene.setOnKeyPressed(
+				e -> {
+					KeyCode key = e.getCode();
+					switch (key){
+					case A: 
+					case LEFT: hero.dir = 1;
+						break;
+					case D:
+					case RIGHT: hero.dir = 2;
+						break;
+					case UP:
+					case W: hero.jmp = 1;
+						break;
+					case S:
+					case DOWN: hero.dir = 3;
+						break;
+					case SHIFT: hero.spr = 1;
+						break;
+					case SPACE:
+						break;
+					default:
+						break;
+					}
+				});
+		scene.setOnKeyReleased(
+				e -> {
+					KeyCode key = e.getCode();
+					if (key == KeyCode.D|| key == KeyCode.RIGHT) {
+							hero.dir = 0;
+							left = false;
+					}
+					if(key == KeyCode.A || key == KeyCode.LEFT) {
+							hero.dir = 0;
+							left = true;
+					}
+					if(key == KeyCode.S || key == KeyCode.DOWN) {
+						if(left) {
+							hero.dir = 0;
+							left = true;
+						}else {
+							hero.dir = 0;
+							left = false;
+						}
+					}
+					if(key == KeyCode.W || key == KeyCode.UP) {
+						if(left) {
+							hero.jmp = 0;
+							left = true;
+						}else {
+							hero.jmp = 0;
+							left = false;
+						}
+					} 
+					if(key == KeyCode.SHIFT)
+						hero.spr = 0;
+				});
+	}
+	
+	void checkScrolling(){
 		// Test if hero is at edge of view window and scroll appropriately
-		if (hero.locx() < (vleft+SCROLL))
-		{
+		if (hero.locx() < (vleft+SCROLL)){
 			vleft = hero.locx()-SCROLL;
 			if (vleft < 0)
 				vleft = 0;
 		}
-		if ((hero.locx() + hero.width()) > (vleft+WIDTH-SCROLL))
-		{
-			vleft = hero.locx()+hero.width()-WIDTH+SCROLL;
-			if (vleft > (grid.width()-WIDTH))
-				vleft = grid.width()-WIDTH;
+		if ((hero.locx() + hero.width()) > (vleft+VWIDTH-SCROLL)){
+			vleft = hero.locx()+hero.width()-VWIDTH+SCROLL;
+			if (vleft > (grid.width()-VWIDTH))
+				vleft = grid.width()-VWIDTH;
 		}
 	}
 	
-	// Draw the game world.
-	int base = (int) System.currentTimeMillis();
-	void render(GraphicsContext gc) {
-		
-		int currTime = Timer.getTimeSec(base);
-		
-		if(asteroid_stage && (planet_stage != 1)) {
-			
-				// Black background
-				gc.setFill(Color.BLACK);
-				gc.fillRect(0, 0, WIDTH, HEIGHT);
-				
-				// Draw asteroids
-				for (Asteroid b: asteroids)
-					b.render(gc);
-					
-				if(w_1) {
-					gc.setFill(Color.WHITE);
-					gc.setFont(font);
-					gc.fillText("WAVE 1", WIDTH/3, 50);
-				}
-				
-				if(w_2) {
-					w_1 = false;
-					gc.setFill(Color.WHITE);
-					gc.setFont(font);
-					gc.fillText("WAVE 2", WIDTH/3, 50);
-				}
-				
-				if(w_3) {
-					w_2 = false;
-					gc.setFill(Color.WHITE);
-					gc.setFont(font);
-					gc.fillText("WAVE 3", WIDTH/3, 50);
-				}
-				
-				if(beat_dodge) {
-						transition_planet = true;			// Stop rendering new asteroids
-						Player.landing_sequence = true;		// Advance player
-						gc.setFill(Color.YELLOW);
-						gc.setFont(font);
-						if(wait < 260) {
-							wait++;
-							if(currTime % 2 == 0)
-								gc.fillText("CRASH LANDING.\nBRACE FOR IMPACT.", WIDTH/3, HEIGHT/2);
-						}
-						else
-							planet_stage = 1;
-				
-				}	
-				
-				// Text goes last to overlay previous items.
-				if(currTime >= 2 && currTime <= 5) {
-					gc.setFill(Color.BLUE);
-					gc.setFont(font);
-					gc.fillText("ASTEROIDS INCOMING", WIDTH/4, HEIGHT/2);
-					
-					gc.setFill(Color.AQUA);
-					gc.setFont(fontSmall);
-					gc.fillText("press 'X' to enable debug mode.", WIDTH/4, HEIGHT/2 + 60);
-					gc.fillText("press 'C' to disable debug mode.", WIDTH/4, HEIGHT/2 + 90);
-				}
-				
-				if(fuel_ct == 0) {		// If fuel = 0 blink red
-					if(currTime % 2 == 0) {
-						gc.setFill(Color.RED);
-						gc.setFont(fontSmaller);
-						gc.fillText("FUEL = " + fuel_ct, 150, HEIGHT-25);
-					}
-				}
-				else if(fuel_ct > 0) {	// If fuel > 0,  render solid green
-					gc.setFill(Color.rgb(66, 244, 69));
-					gc.setFont(fontSmaller);
-					gc.fillText("FUEL = " + fuel_ct, 150, HEIGHT-25);
-				}
-				
-				p.render(gc);
+	static void useWorldCoords(GraphicsContext gc){
+		if (!world_coords){
+			gc.translate(-view_x, -view_y);
+			world_coords = true;
 		}
-		
-		else if(transition_planet) {	
-			// Black background
-			gc.setFill(Color.BLACK);
-			gc.fillRect(0, 0, WIDTH, HEIGHT);
-			
-			// Text goes last to overlay previous items.
-			gc.setFill(Color.WHITE);
-			gc.setFont(font);
-			gc.fillText("YOU HAVE CRASH LANDED ON PLANET ZORG", WIDTH/3, HEIGHT/2);
-			
-			Player.render_transition = true;
-		}	
-		
-		if(planet_stage == 1) {
-			// Merging scroll
-			int cut = (vleft/2) % BWIDTH;
-			gc.drawImage(background, -cut, 0);
-			gc.drawImage(background, BWIDTH-cut, 0);
-			
-			for (int i = 0; i < rocks.length; i++)
-				rocks[i].render(gc);
-			
-			grid.render(gc);
-			hero.render(gc);
-			gc.setFill(Color.WHITE);
-			gc.setFont(fontSmall);
-			gc.fillText("\"Weird... no ammo.\nAnd no enemies to fight...\nMaybe in the final version.\"", WIDTH/3, 100);
-		}
-			
-		// For now, always render score and current time.
-		gc.setFill(Color.WHITE);
-		gc.setFont(fontSmall);
-		gc.fillText(Integer.toString(currTime) + " sec", 850, 50);
-		score.render(gc);
-		lives.render(gc);
 	}
 
-	/*
-	 * Begin boiler-plate code...
-	 * [Animation with initialization]
+	static void useScreenCoords(GraphicsContext gc){
+		if (world_coords){
+			gc.setTransform(new Affine());
+			world_coords = false;
+		}
+	}
+
+	// Draw the game world.
+		int base = (int) System.currentTimeMillis();
+		void render(GraphicsContext gc) {
+			
+			int currTime = Timer.getTimeSec(base);
+			
+			if(asteroid_stage && (planet_stage != 1)) {
+				
+					// Black background
+					gc.setFill(Color.BLACK);
+					gc.fillRect(0, 0, VWIDTH, VHEIGHT);
+					
+					// Draw asteroids
+					for (Asteroid b: asteroids)
+						b.render(gc);
+						
+					if(w_1) {
+						gc.setFill(Color.WHITE);
+						gc.setFont(font);
+						gc.fillText("WAVE 1", VWIDTH/3, 50);
+					}
+					
+					if(w_2) {
+						w_1 = false;
+						gc.setFill(Color.WHITE);
+						gc.setFont(font);
+						gc.fillText("WAVE 2", VWIDTH/3, 50);
+					}
+					
+					if(w_3) {
+						w_2 = false;
+						gc.setFill(Color.WHITE);
+						gc.setFont(font);
+						gc.fillText("WAVE 3", VWIDTH/3, 50);
+					}
+					
+					if(beat_dodge) {
+							transition_planet = true;			// Stop rendering new asteroids
+							Player.landing_sequence = true;		// Advance player
+							gc.setFill(Color.YELLOW);
+							gc.setFont(font);
+							if(wait < 260) {
+								wait++;
+								if(currTime % 2 == 0)
+									gc.fillText("CRASH LANDING.\nBRACE FOR IMPACT.", VWIDTH/3, VHEIGHT/2);
+							}
+							else
+								planet_stage = 1;
+					
+					}	
+					
+					// Text goes last to overlay previous items.
+					if(currTime >= 2 && currTime <= 5) {
+						gc.setFill(Color.BLUE);
+						gc.setFont(font);
+						gc.fillText("ASTEROIDS INCOMING", VWIDTH/4, VHEIGHT/2);
+						
+						gc.setFill(Color.AQUA);
+						gc.setFont(fontSmall);
+						gc.fillText("press 'X' to enable debug mode.", VWIDTH/4, VHEIGHT/2 + 60);
+						gc.fillText("press 'C' to disable debug mode.", VWIDTH/4, VHEIGHT/2 + 90);
+					}
+					
+					if(fuel_ct == 0) {		// If fuel = 0 blink red
+						if(currTime % 2 == 0) {
+							gc.setFill(Color.RED);
+							gc.setFont(fontSmaller);
+							gc.fillText("FUEL = " + fuel_ct, 150, VHEIGHT-25);
+						}
+					}
+					else if(fuel_ct > 0) {	// If fuel > 0,  render solid green
+						gc.setFill(Color.rgb(66, 244, 69));
+						gc.setFont(fontSmaller);
+						gc.fillText("FUEL = " + fuel_ct, 150, VHEIGHT-25);
+					}
+					
+					p.render(gc);
+			}
+			
+			else if(transition_planet) {	
+				// Black background
+				gc.setFill(Color.BLACK);
+				gc.fillRect(0, 0, VWIDTH, VHEIGHT);
+				
+				// Text goes last to overlay previous items.
+				gc.setFill(Color.WHITE);
+				gc.setFont(font);
+				gc.fillText("YOU HAVE CRASH LANDED ON PLANET ZORG", VWIDTH/3, VHEIGHT/2);
+				
+				Player.render_transition = true;
+			}	
+			
+			if(planet_stage == 1) {
+				// Merging scroll
+				int cut = (vleft/2) % BWIDTH;
+				gc.drawImage(background, -cut, 0);
+				gc.drawImage(background, BWIDTH-cut, 0);
+				
+				for (int i = 0; i < rocks.length; i++)
+					rocks[i].render(gc);
+				
+				grid.render(gc);
+				hero.render(gc);
+				gc.setFill(Color.WHITE);
+				gc.setFont(fontSmall);
+				gc.fillText("\"Weird... no ammo.\nAnd no enemies to fight...\nMaybe in the final version.\"", VWIDTH/3, 100);
+			}
+				
+			// For now, always render score and current time.
+			gc.setFill(Color.WHITE);
+			gc.setFont(fontSmall);
+			gc.fillText(Integer.toString(currTime) + " sec", 850, 50);
+			score.render(gc);
+			lives.render(gc);
+		}
+
+	/* Begin boiler-plate code...
+	 * [Animation and events with initialization]
 	 */
 	public static void main(String[] args) {
 		launch(args);
@@ -403,13 +472,13 @@ public class LaunchSpacePerson extends Application {
 	
 	@Override
 	public void start(Stage theStage) {
-		theStage.setTitle(appName);
+		theStage.setTitle("Super Mafio Bros");
 
 		Group root = new Group();
 		Scene theScene = new Scene(root);
 		theStage.setScene(theScene);
 
-		Canvas canvas = new Canvas(WIDTH, HEIGHT);
+		Canvas canvas = new Canvas(VWIDTH, VHEIGHT);
 		root.getChildren().add(canvas);
 
 		GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -433,98 +502,5 @@ public class LaunchSpacePerson extends Application {
 
 		theStage.show();
 	}
-	void setHandlers(Scene scene)
-	{
-		scene.setOnKeyPressed(
-			e -> {
-				KeyCode c = e.getCode();
-				switch (c) {
-					case W: 
-						if(planet_stage == 1) {
-								hero.jmp = 1;
-								break;
-						}
-						else
-							p.setUpKey(true);
-								break;
-					case S:
-						if(planet_stage == 1) break;
-						else
-							p.setDownKey(true);
-								break;
-					case D:
-						if(planet_stage == 1) {
-							Image guyImage = new Image("34JowqG.gif");
-							hero = new HeroSprite(grid,hero.locx,hero.locy,guyImage);
-							hero.dir = 2;
-							break;
-						}
-						else {
-							p.setRightKey(true);
-							break;
-						}
-					case A:
-						if(planet_stage == 1) {
-							Image guyleftImage = new Image("34JowqGleft.gif");
-							hero = new HeroSprite(grid,hero.locx,hero.locy,guyleftImage);
-							hero.dir = 1;
-							break;
-						}
-						else {
-							p.setLeftKey(true);
-							break;
-						}
-					case X:
-						debug_mode = true;
-						break;
-						
-					case C:
-						debug_mode = false;
-						break;
-						
-					default:
-								break;
-				}
-			}
-		);
-		
-		scene.setOnKeyReleased(
-				e -> {
-					KeyCode c = e.getCode();
-					if(c == KeyCode.W) {
-						hero.jmp = 0;
-					}
-					if (planet_stage == 1 && (c == KeyCode.D)) {
-						Image guyImage = new Image("Kn1AFh22.gif");
-						hero = new HeroSprite(grid,hero.locx,hero.locy,guyImage);
-						hero.dir = 0;
-					}
-					
-					else if(planet_stage == 1 && (c == KeyCode.A)) {
-						Image guyImage = new Image("stagnant_left.gif");
-						hero = new HeroSprite(grid,hero.locx,hero.locy,guyImage);
-						hero.dir = 0;
-					}
-			
-					else {
-						switch (c) {
-							case W:
-								p.setUpKey(false);
-										break;
-							case S:
-								p.setDownKey(false);
-										break;
-							case D:
-								p.setRightKey(false);
-										break;
-							case A:
-								p.setLeftKey(false);
-										break;
-							default:
-										break;
-						}
-					}
-				}
-			);
-	}
+	 //... End boiler-plate code
 }

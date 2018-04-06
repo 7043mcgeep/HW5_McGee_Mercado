@@ -9,28 +9,23 @@ class Grid
 	// The Grid know how many pixels each block is, so can relate pixel-based
 	// coords to the map.
 
-	public static final int MWIDTH = 250;
+	public static int MWIDTH = 250;
 	public static final int MHEIGHT = 17;
 	int map[][] = new int[MWIDTH][MHEIGHT];
 	static final int CELLSIZE = 40; // Number of pixels per map cell
 	
-	Image block; // should be CELLSIZE by CELLSIZE image
-
-	Grid(Image b1)
-	{
-		block = b1;
+	Image block = new Image("ground.png"); // CELLSIZE x CELLSIZE
+	Grid(){
 		for (int row = 0; row < MHEIGHT; row++)
 		 for (int col = 0; col < MWIDTH; col++)
 			map[col][row] = 0;
 	}
 	
-	public int width()
-	{
+	public int width(){
 		return MWIDTH*CELLSIZE;
 	}
 
-	public int moveRight(BoundingBox r, int d)
-	{
+	public int moveRight(BoundingBox r, int d){
 		// Return the number of pixels (not exceeding d) that
 		// the Rectangle r can move to the right without hitting
 		// a block.
@@ -47,13 +42,12 @@ class Grid
 		if (col == (MWIDTH-1))
 			return width()-right-1;
 		for (int row = row1; row <= row2; row++)
-			if (map[col+1][row] != 0)
+			if (map[col+1][row] != 0)				// No walking through blocks...
 				return edge-right-1;
 		return d;
 	}
 
-	public int moveLeft(BoundingBox r, int d)
-	{
+	public int moveLeft(BoundingBox r, int d){
 		// Return the number of pixels (not exceeding d) that
 		// the Rectangle r can move to the left without hitting
 		// a block.
@@ -81,8 +75,7 @@ class Grid
 	 * a block.
 	 * Assume d is less than CELLSIZE.
 	 */
-	public int moveDown(BoundingBox r, int d)
-	{
+	public int moveDown(BoundingBox r, int d){
 		int rbottom = (int)r.getMaxY();
 		int row = rbottom/CELLSIZE;
 		int col1 = ((int)r.getMinX())/CELLSIZE;
@@ -96,13 +89,11 @@ class Grid
 		return d;
 	}
 
-	public int moveUp(BoundingBox r, int d)
-	{
+	public int moveUp(BoundingBox r, int d){
 		return d;
 	}
 
-	public boolean onGround(BoundingBox r)
-	{
+	public boolean onGround(BoundingBox r){
 		// Return true if Rectangle r is resting on the ground (or a block)
 		int rbottom = (int)r.getMaxY();
 		int row = rbottom/CELLSIZE;
@@ -117,27 +108,24 @@ class Grid
 		return false;
 	}
 
-	public boolean atTop(BoundingBox r)
-	{
+	public boolean atTop(BoundingBox r){
 		return false;
 	}
 
-	public void setBlock(int x, int y)
-	{
+	public void setBlock(int x, int y){
 		map[x][y] = 1;
 	}
-
-	public void render(GraphicsContext gc)
-	{
+	  
+	public void render(GraphicsContext gc){
 		gc.setFill(Color.BLUE);
 		// Just draw visible blocks
-		int col1 = (LaunchSpacePerson.vleft)/CELLSIZE;
-		int col2 = (LaunchSpacePerson.vleft + LaunchSpacePerson.WIDTH)/CELLSIZE;
+		int col1 = (Main.vleft)/CELLSIZE;
+		int col2 = (Main.vleft + Main.VWIDTH)/CELLSIZE;
 		if (col2 >= MWIDTH)
 			col2 = MWIDTH-1;
 		for (int row = 0; row < MHEIGHT; row++)
 		 for (int col = col1; col <= col2; col++)
 			if (map[col][row] == 1)
-				gc.drawImage(block, col*CELLSIZE-LaunchSpacePerson.vleft, row*CELLSIZE, CELLSIZE, CELLSIZE);
+				gc.drawImage(block, col*CELLSIZE-Main.vleft, row*CELLSIZE, CELLSIZE, CELLSIZE);
 	}
 }

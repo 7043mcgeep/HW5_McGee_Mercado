@@ -31,7 +31,7 @@ class Rock
 
 	public void render(GraphicsContext gr)
 	{
-		gr.drawImage(image,locx-2*LaunchSpacePerson.vleft, locy);
+		gr.drawImage(image,locx-2*Main.vleft, locy);
 	}
 
 	public void update()

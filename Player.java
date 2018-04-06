@@ -46,7 +46,7 @@ public class Player {
    public void move(){
 	   if (upKey && y > 0 && !landing_sequence)
 	       y -= SPEED+2;
-	   if (downKey && y < LaunchSpacePerson.HEIGHT-w && !landing_sequence)
+	   if (downKey && y < Main.VHEIGHT-w/1.2 && !landing_sequence)
 	       y += SPEED+2;
 	   if(landing_sequence)
 		   x += SPEED*1.5;
@@ -75,11 +75,11 @@ public class Player {
    }
    
    public void render(GraphicsContext gc){
-	   if(x+w < LaunchSpacePerson.WIDTH) {
-		   if(!LaunchSpacePerson.player_blink)
+	   if(x+w < Main.VWIDTH) {
+		   if(!Main.player_blink)
 			   gc.drawImage(ship, x, y, w, h);
 		   
-		   if(LaunchSpacePerson.player_blink && blink_ct < 45) {
+		   if(Main.player_blink && blink_ct < 45) {
 			   
 			   // Wait for some time
 			   if(wait_blink < 50) {
@@ -90,13 +90,13 @@ public class Player {
 			   blink_ct++;
 		   }
 		   else {
-			   LaunchSpacePerson.player_blink = false;
+			   Main.player_blink = false;
 			   wait_blink = 0;
 			   blink_ct = 0;
 			   
 		   }
 		   
-		   if(LaunchSpacePerson.debug_mode) {
+		   if(Main.debug_mode) {
 			   gc.setStroke(Color.WHITE);
 			   gc.strokeRect(x+29, y+4, w-65, h-22);
 			   gc.setStroke(Color.RED);
@@ -106,6 +106,6 @@ public class Player {
 		   }
 	   }
 	   else
-		   LaunchSpacePerson.transition_planet = true;    // Begin transition. Do not render player off-screen.
+		   Main.transition_planet = true;    // Begin transition. Do not render player off-screen.
    }
 }
