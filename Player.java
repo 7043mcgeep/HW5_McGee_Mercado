@@ -23,7 +23,7 @@ public class Player {
    static Image ship_dead = new Image("ship_dead.gif");
 
 	public BoundingBox bounds() {
-		return new BoundingBox(x-5, y-5, w-20, h-20);
+		return new BoundingBox(x+32, y+6, w-68, h-26);
 	}
 	
 	public BoundingBox bounds2() {
@@ -46,7 +46,7 @@ public class Player {
    public void move(){
 	   if (upKey && y > 0 && !landing_sequence)
 	       y -= SPEED+2;
-	   if (downKey && y < Main.VHEIGHT-w/1.2 && !landing_sequence)
+	   if (downKey && y < Main.HEIGHT-w/1.2 && !landing_sequence)
 	       y += SPEED+2;
 	   if(landing_sequence)
 		   x += SPEED*1.5;
@@ -75,7 +75,7 @@ public class Player {
    }
    
    public void render(GraphicsContext gc){
-	   if(x+w < Main.VWIDTH) {
+	   if(x+w < Main.WIDTH) {
 		   if(!Main.player_blink)
 			   gc.drawImage(ship, x, y, w, h);
 		   
@@ -98,7 +98,7 @@ public class Player {
 		   
 		   if(Main.debug_mode) {
 			   gc.setStroke(Color.WHITE);
-			   gc.strokeRect(x+29, y+4, w-65, h-22);
+			   gc.strokeRect(x+32, y+6, w-68, h-26);
 			   gc.setStroke(Color.RED);
 			   gc.strokeRect(x+40, y+10, w-68, h-34);
 			   gc.strokeRect(x+50, y+19, w-70, h-52);

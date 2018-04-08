@@ -24,6 +24,8 @@ class HeroSprite
 	static final int STAND = 0;
 	static final int JUMP = 1;
 	static final double GRAVITY = 2.7;
+	public boolean powerup = false;
+	public int powerup_t = 0;
 	
 	 Image image;
 	 Image one = new Image("sprites/HeroOne.gif");
@@ -31,8 +33,6 @@ class HeroSprite
 	 Image walk = new Image("sprites/walk.gif");
 	 Image walkLeft = new Image("sprites/walkLeft.gif");
 	 Image jump = new Image("sprites/jump.gif");
-	 Image crouch = new Image("sprites/crouch.gif");
-	 Image crouchLeft = new Image("sprites/crouchLeft.gif");
 	 Image jumpLeft = new Image("sprites/jumpLeft.gif");
 	 Image run = new Image("sprites/run.gif");
 	 Image runLeft = new Image("sprites/runLeft.gif");
@@ -54,12 +54,6 @@ class HeroSprite
 
 	public int width(){
 		return width;
-	}
-	
-	public void render(GraphicsContext gc){
-		gc.drawImage(image, locx-Main.vleft, locy-20, 60, 90);
-		gc.setStroke(Color.CYAN);
-		gc.strokeRect(locx-Main.vleft, locy-20, 60, 90);
 	}
 
 	public void update(){
@@ -83,11 +77,8 @@ class HeroSprite
 			}
 		}
 		else if (dir == 3) {
-			dx = 0;
-			if(Main.left)
-				image = crouchLeft;
-			else
-				image = crouch;
+			//if ()
+			powerup = true;
 		}
 		else {
 			dx = 0;
@@ -115,12 +106,7 @@ class HeroSprite
 	}
 
 	public BoundingBox collisionBox(){
-		if(dir == 3) {
-			return new BoundingBox(locx-Main.vleft, locy-20, 60, 90);
-			//return new BoundingBox(locx+10, locy+10, width-10, height-10);
-		}else {
-			return new BoundingBox(locx+10, locy-10, width-10, height+10);
-		}
+		return new BoundingBox(locx+10, locy-10, width-10, height+10);
 	}
 	
 /*
@@ -183,5 +169,21 @@ class HeroSprite
 		else
 			if (!g.onGround(collisionBox()))
 				state = JUMP;
+	}
+	
+	public void render(GraphicsContext gc){
+		gc.drawImage(image, locx-Main.vleft, locy - 20, 60, 90);
+		gc.setStroke(Color.CYAN);
+		gc.strokeRect(locx-Main.vleft, locy-20, 60, 90);
+		if(powerup) powerup_t++;
+		if(powerup && powerup_t < 70) {
+			gc.setFill(Color.RED);
+			gc.setFont(Main.font);
+			gc.fillText("POWERUP!", locx-Main.vleft - 20, locy - 20);
+		}
+		else if(powerup_t >= 70) {
+			powerup = false;
+			powerup_t = 0;
+		}
 	}
 }

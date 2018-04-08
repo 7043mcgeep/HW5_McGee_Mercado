@@ -120,7 +120,7 @@ class Grid
 		gc.setFill(Color.BLUE);
 		// Just draw visible blocks
 		int col1 = (Main.vleft)/CELLSIZE;
-		int col2 = (Main.vleft + Main.VWIDTH)/CELLSIZE;
+		int col2 = (Main.vleft + Main.WIDTH)/CELLSIZE;
 		if (col2 >= MWIDTH)
 			col2 = MWIDTH-1;
 		for (int row = 0; row < MHEIGHT; row++)

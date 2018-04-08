@@ -21,9 +21,9 @@ Dodge the asteroids and then fight intergalactic crime!
 */
 public class Main extends Application {
 	
-	final static int FPS = 25; // frames per second
-	final static int VWIDTH = 1400;
-	final static int VHEIGHT = 800;
+	final static int FPS = 30; // frames per second
+	final static int WIDTH = 1400;
+	final static int HEIGHT = 800;
 	
 	public static int waves = 0;
 	public boolean w_1, w_2, w_3;
@@ -45,14 +45,31 @@ public class Main extends Application {
 	Image background;
 	Rock rocks[] = new Rock[5];
 	
-	public int            fuel_ct = 100;
+	public int			  ammo_ct = 0;			// Ammo count used in final score calculation.
+	public int            fuel_ct = 0;			// Each level beaten, user picks up fuel can, adds 33 to this constant.
+												// At end of game, user has 100% fuel and is able to get home.
 	public static boolean debug_mode = false;
-	public static boolean asteroid_stage = true;
-	public static boolean beat_dodge;
-	public static boolean transition_planet = false;
-	public static int     planet_stage = 0;
-	public static boolean player_blink = false;
-	public static boolean        left = false;
+	
+	public int enter = 0;
+	
+	// Timing variables
+	int base = (int) System.currentTimeMillis();
+	int currTime = 0;
+	
+	// Main menu flags
+	public static boolean main_menu = true;
+	
+	// Asteroid stage flags
+	public static boolean asteroid_stage = false;		// True upon game start (first stage)
+	public static boolean player_blink = false;			// True after collision w/ asteroid. Player goes into invincibility
+														// for a short time.
+	public static boolean beat_dodge = false;			// Crash landing alert flag
+
+	// Planet stage flags
+	public static boolean transition_planet = false;	// True after player dodges all asteroids in wave 3.
+														// Used to stop rendering/initializing new asteroids.
+	public static int     planet_stage = 0;				// 1 is the first stage. After the 3rd stage, player wins.
+	public static boolean left = false;
 	
 	static Font font = Font.loadFont(Main.class.getResource("PressStart2P.ttf").toExternalForm(), 32);
 	static Font fontSmall = Font.loadFont(Main.class.getResource("PressStart2P.ttf").toExternalForm(), 22);
@@ -181,7 +198,6 @@ public class Main extends Application {
 		lives = new Lives();
 		
 		background = new Image("bkgnd.jpg");
-		Image guyImage = new Image("Kn1AFh22.gif");
 		Image r1 = new Image("rock_glow.gif");
 		Image r2 = new Image("rock_glow2.gif");
 		Image r3 = new Image("rock_glow3.gif");
@@ -199,7 +215,7 @@ public class Main extends Application {
 				|| p.bounds4().intersects(asteroids[k].bounds()))
 				return true;
 		else
-			return false;
+				return false;
 	}
 	
 	// Update all game variables
@@ -217,14 +233,14 @@ public class Main extends Application {
 		p.move();
 		
 		for (int k = 0; k < asteroids.length; k++) {
-			// Check if player is hit by the asteroid
-			if (collided(k) && asteroids[k].hit == false && player_blink == false) {		// Check collision (w/ invincibility frame)
+			// Check if player is hit by asteroid k
+			if (collided(k) && asteroids[k].hit == false && player_blink == false && asteroids[k].fullPass == false) {		// Check collision (w/ invincibility frame)
 				player_blink = true;
 				lives.lives -= 1;
 				asteroids[k].hit = true;
 			}
 			
-			// An asteroid leaves the screen on the left side
+			// Asteroid k leaves the screen on the left side
 			if(asteroids[k].x + asteroids[k].w/2 < 50 && passCount != 50 && !asteroids[k].fullPass && !Player.landing_sequence){
 				score.score += 100;
 				asteroids[k].fullPass = true;
@@ -255,7 +271,7 @@ public class Main extends Application {
 				beat_dodge = true;
 		}
 				
-		if(planet_stage != 1) {
+		if(planet_stage != 1 && !main_menu) {
 			for (Asteroid b: asteroids)
 				b.move();
 		}
@@ -285,6 +301,23 @@ public class Main extends Application {
 						break;
 					case SPACE:
 						break;
+					case X:
+						debug_mode = true;
+						break;
+					case C:
+						if(main_menu) {
+							
+						}
+						debug_mode = false;
+						break;
+					case ENTER:
+						if(enter < 2 && main_menu){
+							base = (int) System.currentTimeMillis();
+							asteroid_stage = true;
+							main_menu = false;
+							enter++;
+						}
+						else break;
 					default:
 						break;
 					}
@@ -338,10 +371,10 @@ public class Main extends Application {
 			if (vleft < 0)
 				vleft = 0;
 		}
-		if ((hero.locx() + hero.width()) > (vleft+VWIDTH-SCROLL)){
-			vleft = hero.locx()+hero.width()-VWIDTH+SCROLL;
-			if (vleft > (grid.width()-VWIDTH))
-				vleft = grid.width()-VWIDTH;
+		if ((hero.locx() + hero.width()) > (vleft+WIDTH-SCROLL)){
+			vleft = hero.locx()+hero.width()-WIDTH+SCROLL;
+			if (vleft > (grid.width()-WIDTH))
+				vleft = grid.width()-WIDTH;
 		}
 	}
 	
@@ -359,17 +392,47 @@ public class Main extends Application {
 		}
 	}
 
-	// Draw the game world.
-		int base = (int) System.currentTimeMillis();
+	    // Draw the world.
 		void render(GraphicsContext gc) {
 			
-			int currTime = Timer.getTimeSec(base);
+			currTime = Timer.getTimeSec(base);
 			
-			if(asteroid_stage && (planet_stage != 1)) {
-				
+			if(main_menu) {
 					// Black background
 					gc.setFill(Color.BLACK);
-					gc.fillRect(0, 0, VWIDTH, VHEIGHT);
+					gc.fillRect(0, 0, WIDTH, HEIGHT);
+
+					gc.setFont(font);
+					gc.setFill(Color.WHITE);
+					gc.fillText("SPACEPERSON", WIDTH/3, 50);
+					//colorText(gc, "SPACEPERSON", WIDTH/3, 50);
+					
+					gc.setFont(fontSmall);
+					gc.setFill(Color.WHITE);
+					gc.fillText("LEADERBOARD", WIDTH/2.7, 120);
+					
+					gc.setFont(fontSmall);
+					gc.setFill(Color.WHITE);
+					gc.fillText("SCORE\tNAME", WIDTH/2.5, 160);
+					gc.fillText("1ST ", WIDTH/3.2, 200);
+					gc.fillText("2ND ", WIDTH/3.2, 250);
+					gc.fillText("3RD ", WIDTH/3.2, 300);
+					gc.fillText("4TH ", WIDTH/3.2, 350);
+					gc.fillText("5TH ", WIDTH/3.2, 400);
+					
+					gc.fillText("PRESS 'ENTER' TO PLAY", WIDTH/3.4, 480);
+					gc.fillText("'I' FOR INSTRUCTIONS", WIDTH/3.4, 520);
+					gc.fillText("'C' FOR CREDITS", WIDTH/3.4, 560);
+				
+			}
+			
+			else if(asteroid_stage && (planet_stage != 1)) {
+					
+					//currTime = Timer.getTimeSec(base);
+					
+					// Black background
+					gc.setFill(Color.BLACK);
+					gc.fillRect(0, 0, WIDTH, HEIGHT);
 					
 					// Draw asteroids
 					for (Asteroid b: asteroids)
@@ -378,21 +441,21 @@ public class Main extends Application {
 					if(w_1) {
 						gc.setFill(Color.WHITE);
 						gc.setFont(font);
-						gc.fillText("WAVE 1", VWIDTH/3, 50);
+						gc.fillText("WAVE 1", WIDTH/3, 50);
 					}
 					
 					if(w_2) {
 						w_1 = false;
 						gc.setFill(Color.WHITE);
 						gc.setFont(font);
-						gc.fillText("WAVE 2", VWIDTH/3, 50);
+						gc.fillText("WAVE 2", WIDTH/3, 50);
 					}
 					
 					if(w_3) {
 						w_2 = false;
 						gc.setFill(Color.WHITE);
 						gc.setFont(font);
-						gc.fillText("WAVE 3", VWIDTH/3, 50);
+						gc.fillText("WAVE 3", WIDTH/3, 50);
 					}
 					
 					if(beat_dodge) {
@@ -403,7 +466,7 @@ public class Main extends Application {
 							if(wait < 260) {
 								wait++;
 								if(currTime % 2 == 0)
-									gc.fillText("CRASH LANDING.\nBRACE FOR IMPACT.", VWIDTH/3, VHEIGHT/2);
+									gc.fillText("CRASH LANDING.\nBRACE FOR IMPACT.", WIDTH/3, HEIGHT/2);
 							}
 							else
 								planet_stage = 1;
@@ -411,28 +474,28 @@ public class Main extends Application {
 					}	
 					
 					// Text goes last to overlay previous items.
-					if(currTime >= 2 && currTime <= 5) {
+					if(currTime <= 5) {
 						gc.setFill(Color.BLUE);
 						gc.setFont(font);
-						gc.fillText("ASTEROIDS INCOMING", VWIDTH/4, VHEIGHT/2);
+						gc.fillText("ASTEROIDS INCOMING", WIDTH/4, HEIGHT/2);
 						
 						gc.setFill(Color.AQUA);
 						gc.setFont(fontSmall);
-						gc.fillText("press 'X' to enable debug mode.", VWIDTH/4, VHEIGHT/2 + 60);
-						gc.fillText("press 'C' to disable debug mode.", VWIDTH/4, VHEIGHT/2 + 90);
+						gc.fillText("press 'X' to enable debug mode.", WIDTH/4, HEIGHT/2 + 60);
+						gc.fillText("press 'C' to disable debug mode.", WIDTH/4, HEIGHT/2 + 90);
 					}
 					
 					if(fuel_ct == 0) {		// If fuel = 0 blink red
 						if(currTime % 2 == 0) {
 							gc.setFill(Color.RED);
 							gc.setFont(fontSmaller);
-							gc.fillText("FUEL = " + fuel_ct, 150, VHEIGHT-25);
+							gc.fillText("FUEL = " + fuel_ct, 150, HEIGHT-25);
 						}
 					}
 					else if(fuel_ct > 0) {	// If fuel > 0,  render solid green
 						gc.setFill(Color.rgb(66, 244, 69));
 						gc.setFont(fontSmaller);
-						gc.fillText("FUEL = " + fuel_ct, 150, VHEIGHT-25);
+						gc.fillText("FUEL = " + fuel_ct, 150, HEIGHT-25);
 					}
 					
 					p.render(gc);
@@ -441,12 +504,12 @@ public class Main extends Application {
 			else if(transition_planet) {	
 				// Black background
 				gc.setFill(Color.BLACK);
-				gc.fillRect(0, 0, VWIDTH, VHEIGHT);
+				gc.fillRect(0, 0, WIDTH, HEIGHT);
 				
 				// Text goes last to overlay previous items.
 				gc.setFill(Color.WHITE);
 				gc.setFont(font);
-				gc.fillText("YOU HAVE CRASH LANDED ON PLANET ZORG", VWIDTH/3, VHEIGHT/2);
+				gc.fillText("YOU HAVE CRASH LANDED ON PLANET ZORG", WIDTH/3, HEIGHT/2);
 				
 				Player.render_transition = true;
 			}	
@@ -464,7 +527,7 @@ public class Main extends Application {
 				hero.render(gc);
 				gc.setFill(Color.WHITE);
 				gc.setFont(fontSmall);
-				gc.fillText("\"Weird... no ammo.\nAnd no enemies to fight...\nMaybe in the final version.\"", VWIDTH/3, 100);
+				gc.fillText("\"Weird... no ammo.\nAnd no enemies to fight...\nMaybe in the final version.\"", WIDTH/3, 100);
 			}
 				
 			// For now, always render score and current time.
@@ -474,6 +537,21 @@ public class Main extends Application {
 			score.render(gc);
 			lives.render(gc);
 		}
+		
+    // Cycle color of a given string.
+	public void colorText(GraphicsContext gc, String s, double x, double y){
+		int i;
+		for(i = 0; i < 10000;) {
+			gc.setFill(Color.AQUA);
+			gc.fillText(s, x, y);
+			gc.setFill(Color.YELLOW);
+			gc.fillText(s, x, y);
+			gc.setFill(Color.RED);
+			gc.fillText(s, x, y);
+			i++;
+		}
+	}
+		
 
 	/* Begin boiler-plate code...
 	 * [Animation and events with initialization]
@@ -490,7 +568,7 @@ public class Main extends Application {
 		Scene theScene = new Scene(root);
 		theStage.setScene(theScene);
 
-		Canvas canvas = new Canvas(VWIDTH, VHEIGHT);
+		Canvas canvas = new Canvas(WIDTH, HEIGHT);
 		root.getChildren().add(canvas);
 
 		GraphicsContext gc = canvas.getGraphicsContext2D();
