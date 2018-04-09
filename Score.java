@@ -7,7 +7,7 @@ public class Score {
    public void render(GraphicsContext gc){
 	   gc.setFill(Color.WHITE);
 	   gc.setFont(Main.fontSmall);
-	   gc.fillText(""+score, Main.VWIDTH-300, 50);
+	   gc.fillText(""+score, Main.WIDTH-300, 50);
    }
 
 }

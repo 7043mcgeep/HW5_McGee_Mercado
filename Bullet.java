@@ -14,7 +14,7 @@ class Bullet extends Sprite {
     	bounds();
       updatePosition();
       // If bullet exceeds bounds, suspend.
-      if (x > Main.VWIDTH+Main.vleft)
+      if (x > Main.WIDTH+Main.vleft)
     	  suspend();
       else if (x < Main.vleft)
     	  suspend();

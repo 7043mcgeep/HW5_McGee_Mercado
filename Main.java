@@ -52,6 +52,8 @@ public class Main extends Application {
 	
 	public int enter = 0;
 	
+	public static boolean game_over = false;
+	
 	// Timing variables
 	int base = (int) System.currentTimeMillis();
 	int currTime = 0;
@@ -76,6 +78,8 @@ public class Main extends Application {
 	static Font fontSmaller = Font.loadFont(Main.class.getResource("PressStart2P.ttf").toExternalForm(), 12);
 	
 	Asteroid[] asteroids = new Asteroid[50];
+	Bullet bullet, bullet2;
+	Alien aliens[] = new Alien[12];
 	Player p =  new Player();
 	Score score;
 	Lives lives;
@@ -83,7 +87,7 @@ public class Main extends Application {
 	
 	public void setLevel1()
 	{
-		// Put in a ground level
+				// Put in a ground level
 				for (int i = 0; i < Grid.MWIDTH; i++)
 					if (!((i == 59 || i == 60) || (i == 76 || i == 77 || i == 78) || (i == 144 || i == 145)))
 					grid.setBlock(i, Grid.MHEIGHT-1);
@@ -183,6 +187,7 @@ public class Main extends Application {
 		rocks[2] = new Rock(100,300,100,40);
 		rocks[3] = new Rock(1000,200,120,30);
 		rocks[4] = new Rock(1200,250,120,0);
+	    aliens[0] = new Alien(grid, 10, 10, bullet);
 	}
 	
 	/**
@@ -223,6 +228,7 @@ public class Main extends Application {
 	void update() {
 		
 		if(planet_stage == 1) {
+			aliens[0].update();
 			hero.update();
 			for (int i = 0; i < rocks.length; i++)
 				rocks[i].update();
@@ -313,7 +319,8 @@ public class Main extends Application {
 					case ENTER:
 						if(enter < 2 && main_menu){
 							base = (int) System.currentTimeMillis();
-							asteroid_stage = true;
+							//asteroid_stage = true;
+							planet_stage = 1;
 							main_menu = false;
 							enter++;
 						}
@@ -423,6 +430,19 @@ public class Main extends Application {
 					gc.fillText("PRESS 'ENTER' TO PLAY", WIDTH/3.4, 480);
 					gc.fillText("'I' FOR INSTRUCTIONS", WIDTH/3.4, 520);
 					gc.fillText("'C' FOR CREDITS", WIDTH/3.4, 560);
+				
+			}
+			
+			else if(game_over) {
+				System.out.println("GAME OVER");
+				// Black background
+				gc.setFill(Color.BLACK);
+				gc.fillRect(0, 0, WIDTH, HEIGHT);
+				
+				gc.setFont(fontSmall);
+				gc.setFill(Color.WHITE);
+				gc.fillText("GAME OVER", WIDTH/2.5, 160);
+				
 				
 			}
 			

@@ -22,7 +22,6 @@ public class Alien{
 	 Image deadLeft = new Image("sprites/villain1LeftDead.gif");
 	 
 	 int counter = 0;
-	 int MaxCount = (int) (Main.FPS * 2.2857); //credit charlie morley for figuring out bps of the background music to make the villains shoot in sync
 	 
 	 Bullet bullet;
 
@@ -35,8 +34,10 @@ public class Alien{
 	}
 	
 	public void render(GraphicsContext gc){
-		if(visible && !deadB)
+		if(visible && !deadB) {
 			gc.drawImage(image, vilx-Main.vleft, vily-20, 60, 90);
+			System.out.println("hereeeeeee");
+		}
 		if(deadB)
 			gc.drawImage(image, vilx-Main.vleft, vily+10, 90, 90);
 	}
@@ -49,7 +50,6 @@ public class Alien{
 			// keyboard listener)
 			if (HeroSprite.locx <= vilx) {
 				image = v1Left;
-				if(counter == MaxCount) {
 					fireLeft();
 					if(HeroSprite.locx > vilx-700)
 						//Main.boom.play();
@@ -58,20 +58,15 @@ public class Alien{
 			}
 			else if (HeroSprite.locx > vilx) {
 				image = v1;
-				if(counter == MaxCount) {
 					fire();
 					if(HeroSprite.locx < vilx+700)
 						//Main.boom.play();
 					counter = 0;
-				}
 			}
 			else {
 				image = v1;
 			}
 		}
-
-	}
-
 	public BoundingBox collisionBox(){
 		return new BoundingBox(vilx+10, vily-20, width-10, height+20);
 	}

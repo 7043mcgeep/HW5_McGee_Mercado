@@ -142,6 +142,8 @@ class HeroSprite
 			// current speed) without running into
 			// something
 			if (dy > 0){
+				System.out.println(locy + " " + dy + " " + y);
+				if(locy > 600) { Main.game_over = true; Main.planet_stage = 0;}
 				dy = g.moveDown(collisionBox(), dy);
 			}
 			else if (dy < 0){
