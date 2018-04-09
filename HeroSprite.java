@@ -10,42 +10,41 @@ class HeroSprite
 	
 	int x = locx;
 	int y = locy;
-	
-	public Color color;
-	public int width = 40;
-	public int height = 60;
-	public int dx = 0, dy = 0;
-	public int dir = 0;
-	public int jmp = 0;
-	public int crch = 0;
-	public int spr = 0;
-	public int state;
-	public Grid g;
 	static final int STAND = 0;
 	static final int JUMP = 1;
 	static final double GRAVITY = 2.7;
 	public boolean powerup = false;
 	public int powerup_t = 0;
 	
-	 Image image;
-	 Image one = new Image("sprites/HeroOne.gif");
-	 Image oneLeft = new Image("sprites/HeroOneLeft.gif");
-	 Image walk = new Image("sprites/walk.gif");
-	 Image walkLeft = new Image("sprites/walkLeft.gif");
-	 Image jump = new Image("sprites/jump.gif");
-	 Image jumpLeft = new Image("sprites/jumpLeft.gif");
-	 Image run = new Image("sprites/run.gif");
-	 Image runLeft = new Image("sprites/runLeft.gif");
+	public Bullet bullet;
+	public Color color;
+	public int width = 40;
+	public int height = 60;
+	public int dx = 0, dy = 0;
+	public int dir = 0;
+	public int jmp = 0;
+	public int spr = 0;
+	public int state;
+	public Grid g;
+	
+	Image image;
+	Image one = new Image("sprites/person_stag_r.gif");
+	Image oneLeft = new Image("sprites/person_stag_l.gif");
+	Image walk = new Image("sprites/person_right.gif");
+	Image walkLeft = new Image("sprites/person_left.gif");
+	Image jump = new Image("sprites/jump_r.gif");
+	Image jumpLeft = new Image("sprites/jump_l.gif");
+    Image run = new Image("sprites/run_r.gif");
+	Image runLeft = new Image("sprites/run_l.gif");
 	 
-	public HeroSprite(Grid grid, int x, int y){
-		// We use locx, locy to store the top-left corner
-		// of the sprite
-		//
+	public HeroSprite(Grid grid, int x, int y, Bullet b){
+		// locx, locy = top left corner of sprite
 		locx = x;
 		locy = y;
 		g = grid;
 		color = Color.RED;
 		state = STAND;
+		bullet = b;;
 	}
 	
 	public int locx(){
@@ -109,7 +108,6 @@ class HeroSprite
 		return new BoundingBox(locx+10, locy-10, width-10, height+10);
 	}
 	
-/*
 	public void fireBullet(){
 	     bullet.setPosition(locx+20, locy);
 	     bullet.setVelocity(20, 0);
@@ -121,7 +119,6 @@ class HeroSprite
 	     bullet.setVelocity(-20, 0);
 	     bullet.resume();
 	   }
-*/
 	
 	public void updatePosition(){
 
@@ -141,9 +138,8 @@ class HeroSprite
 			// Figure out how far we can move (at our
 			// current speed) without running into
 			// something
-			if (dy > 0){
-				System.out.println(locy + " " + dy + " " + y);
-				if(locy > 600) { Main.game_over = true; Main.planet_stage = 0;}
+			if (dy > -200) {
+				if(locy > 580) { Main.game_over = true; Main.planet_stage = 0;}
 				dy = g.moveDown(collisionBox(), dy);
 			}
 			else if (dy < 0){

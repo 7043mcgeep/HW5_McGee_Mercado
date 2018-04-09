@@ -41,9 +41,12 @@ class Grid
 			return d;
 		if (col == (MWIDTH-1))
 			return width()-right-1;
-		for (int row = row1; row <= row2; row++)
+		for (int row = row1; row <= row2; row++) {
+			if(row == -1)							// If row is "out of bounds" (too high) then keep moving right
+				return edge-right;
 			if (map[col+1][row] != 0)				// No walking through blocks...
 				return edge-right-1;
+		}
 		return d;
 	}
 
@@ -63,9 +66,12 @@ class Grid
 			return d;
 		if (col == 0)
 			return left;
-		for (int row = row1; row <= row2; row++)
+		for (int row = row1; row <= row2; row++) {
+			if(row == -1)							// If row is "out of bounds" (too high) then that's okay, keep moving left
+			    return left-edge+1;
 			if (map[col-1][row] != 0)
 				return left-edge;
+		}
 		return d;
 	}
 
@@ -102,9 +108,11 @@ class Grid
 			return false;
 		int col1 = ((int)r.getMinX())/CELLSIZE;
 		int col2 = ((int)r.getMaxX())/CELLSIZE;
-		for (int i = col1; i <= col2; i++)
+		
+		for (int i = col1; i <= col2; i++) {
 			if (map[i][row+1] != 0)
 				return true;
+		}
 		return false;
 	}
 

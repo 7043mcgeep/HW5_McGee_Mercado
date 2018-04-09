@@ -36,7 +36,7 @@ public class Main extends Application {
 	
 	// Merging scroll
 	final static int BWIDTH = 1400;
-	final static int SCROLL = 400;  // Set edge limit for scrolling
+	final static int SCROLL = 700;  // Set edge limit for scrolling
 	public static int vleft = 0;	// Pixel coord of left edge of viewable
 									// area (used for scrolling)
 	
@@ -79,6 +79,7 @@ public class Main extends Application {
 	
 	Asteroid[] asteroids = new Asteroid[50];
 	Bullet bullet, bullet2;
+	Sprite chrctr[] = new Sprite[12];
 	Alien aliens[] = new Alien[12];
 	Player p =  new Player();
 	Score score;
@@ -195,6 +196,9 @@ public class Main extends Application {
 	 */
 	void initialize()
 	{
+		
+		chrctr[0] = bullet = new Bullet();
+		
 		for (int i = 0; i < asteroids.length; i++)
 			asteroids[i] = new Asteroid();
 		
@@ -209,7 +213,7 @@ public class Main extends Application {
 		Rock.setImages(r1,r2,r3);
 
 		grid = new Grid();
-		hero = new HeroSprite(grid,100,499);
+		hero = new HeroSprite(grid,100,499, bullet);
 		setLevel1();
 	}
 
@@ -228,6 +232,7 @@ public class Main extends Application {
 	void update() {
 		
 		if(planet_stage == 1) {
+			chrctr[0].updateSprite();
 			aliens[0].update();
 			hero.update();
 			for (int i = 0; i < rocks.length; i++)
@@ -306,6 +311,28 @@ public class Main extends Application {
 					case SHIFT: hero.spr = 1;
 						break;
 					case SPACE:
+					case K:
+						if (!bullet.isActive() && hero.dir == 1) {
+							hero.fireBulletLeft();
+							//boom.play();
+						}else if (!bullet.isActive() && hero.dir == 2) {
+							hero.fireBullet();
+							//boom.play();
+						}else if (!bullet.isActive() && hero.dir == 3) {
+							//boom.stop();
+						}else if(!bullet.isActive() && left && hero.spr == 1) {
+							hero.fireBulletLeft();
+							//boom.play();
+						}else if(!bullet.isActive() && hero.spr == 1){
+							hero.fireBullet();
+							//boom.play();
+						}else if(!bullet.isActive() && left) {
+							hero.fireBulletLeft();
+							//boom.play();
+						}else if(!bullet.isActive()){
+							hero.fireBullet();
+							//boom.play();
+						}
 						break;
 					case X:
 						debug_mode = true;
