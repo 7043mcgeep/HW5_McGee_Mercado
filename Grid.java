@@ -45,6 +45,12 @@ class Grid
 		for (int row = row1; row <= row2; row++) {
 			if(row == -1)							// If row is "out of bounds" (too high) then keep moving right
 				return edge-right;
+			if(row == -2)
+				return edge-right+1;
+			if(row == -3)
+				return edge-right+2;
+			if(row == -4)
+				return edge-right+3;
 			if (map[col+1][row] != 0)				// No walking through blocks...
 				return edge-right-1;
 		}
@@ -70,6 +76,12 @@ class Grid
 		for (int row = row1; row <= row2; row++) {
 			if(row == -1)							// If row is "out of bounds" (too high) then that's okay, keep moving left
 			    return left-edge+1;
+			if(row == -2)
+				return left-edge+2;
+			if(row == -3) 
+				return left-edge+3;
+			if(row == -4)
+				return left-edge+4;
 			if (map[col-1][row] != 0)
 				return left-edge;
 		}
@@ -137,6 +149,8 @@ class Grid
 			if (map[col][row] == 1) {
 				if(Main.planet_stage == 1)
 					gc.drawImage(block, col*CELLSIZE-Main.vleft, row*CELLSIZE, CELLSIZE, CELLSIZE);
+				if(Main.planet_stage == 2)
+					gc.drawImage(grass, col*CELLSIZE-Main.vleft, row*CELLSIZE, CELLSIZE, CELLSIZE);
 			}
 	}
 }

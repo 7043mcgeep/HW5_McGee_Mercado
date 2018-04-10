@@ -8,10 +8,14 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
+import javafx.scene.media.AudioClip;
+import javafx.scene.media.Media;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Affine;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.AudioClip;
 import javafx.scene.text.Font;
 
 /*Authors: Patrick J. McGee
@@ -77,16 +81,24 @@ public class Main extends Application {
 	public static boolean transition_lv3 = false;
 	public static boolean lv2 = false;
 	public static boolean lv3 = false;
+	public static boolean wait_a_sec = false;
 	
 	static Font font = Font.loadFont(Main.class.getResource("PressStart2P.ttf").toExternalForm(), 32);
 	static Font fontSmall = Font.loadFont(Main.class.getResource("PressStart2P.ttf").toExternalForm(), 22);
 	static Font fontSmaller = Font.loadFont(Main.class.getResource("PressStart2P.ttf").toExternalForm(), 12);
 	
+	// Audio clips: a very special thanks to: http://www.downloadfreesound.com/8-bit-sound-effects/
+	AudioClip alien_grunt, alien_death, engine, forest_s, forest_noise, lost, portal, shoot1, shoot2, win;
+	MediaPlayer media;
+	
+	// Longer songs
+	Media mars_s;
+	
 	Asteroid[] asteroids = new Asteroid[50];
-	Bullet bullet, bullet2, bullet3, bullet4, bullet5, bullet6, bullet7, bullet8;
-	Sprite chrctr[] = new Sprite[12];
+	Bullet b1, b2, b3, b4, b5, b6, b7, b8, b9;
+	Sprite pic[] = new Sprite[9];
 	Alien aliens1[] = new Alien[7];
-	Alien aliens2[] = new Alien[7];
+	Alien aliens2[] = new Alien[8];
 	Player p =  new Player();
 	Score score;
 	Lives lives;
@@ -94,11 +106,21 @@ public class Main extends Application {
 	// Set up initial variables
 	void initialize()
 	{
-		
-		chrctr[0] = bullet = new Bullet();
+		engine = new AudioClip(ClassLoader.getSystemResource("audio/engine.wav").toString());
+		engine.setVolume(0.5);
 		
 		for (int i = 0; i < asteroids.length; i++)
 			asteroids[i] = new Asteroid();
+		
+		pic[0]= b1 = new Bullet();
+		pic[1]= b2 = new Bullet();
+		pic[2]= b3 = new Bullet();
+		pic[3]= b4 = new Bullet();
+		pic[4]= b5 = new Bullet();
+		pic[5]= b6 = new Bullet();
+		pic[6]= b7 = new Bullet();
+		pic[7]= b8 = new Bullet();
+		pic[8]= b9 = new Bullet();
 		
 		p = new Player();
 		score = new Score();
@@ -115,50 +137,39 @@ public class Main extends Application {
 		grid_1 = new Grid();
 		
 	    if(planet_stage == 1 && !lv2 && !lv3) {
+	    	mars_s = new Media(ClassLoader.getSystemResource("audio/mars.mp3").toString());
+	    	media = new MediaPlayer(mars_s);
+			media.setCycleCount(20);
+			media.play();
+			media.setVolume(0.7);
+	    	
 	    	System.out.println("SETTING LVL 1 " + System.currentTimeMillis());
 	    	Levels.setLevel1(grid_1, rocks);
-	    	hero = new HeroSprite(grid_1,100,499, bullet);
+	    	hero = new HeroSprite(grid_1,100,499, b1);
 			// These values were obtained by printing location of the hero (loxc, locy).
 			// Thus, I know where to exactly place the aliens instead of guess/test/repeat.
 			// Aliens for level 1:
-		    aliens1[0] = new Alien(grid_1, 600, 499, bullet2);
-		    aliens1[1] = new Alien(grid_1, 1125, 370, bullet3);
-		    aliens1[2] = new Alien(grid_1, 1650, 499, bullet4);
-		    aliens1[3] = new Alien(grid_1, 3650, 340, bullet5);
-		    aliens1[4] = new Alien(grid_1, 5229, 339, bullet6);
-		    aliens1[5] = new Alien(grid_1, 6403, 339, bullet7);
-		    aliens1[6] = new Alien(grid_1, 7414, 499, bullet8);
+		    aliens1[0] = new Alien(grid_1, 600, 499, b2);
+		    aliens1[1] = new Alien(grid_1, 1125, 370, b3);
+		    aliens1[2] = new Alien(grid_1, 1650, 499, b4);
+		    aliens1[3] = new Alien(grid_1, 3650, 340, b5);
+		    aliens1[4] = new Alien(grid_1, 5229, 339, b6);
+		    aliens1[5] = new Alien(grid_1, 6403, 339, b7);
+		    aliens1[6] = new Alien(grid_1, 7414, 499, b8);
 	    }
-	    else if(lv2) {
+	    else if(planet_stage == 2) {
 	    	System.out.println("SETTING LVL 2 " + System.currentTimeMillis());
 			Levels.setLevel2(grid_1);
-			planet_stage = 2;
-			hero = new HeroSprite(grid_1,100,499, bullet);			    // Hero for level 2.
-		    aliens2[0] = new Alien(grid_1, 600, 499, bullet2);
-		    aliens2[1] = new Alien(grid_1, 1066, 339, bullet3);
-		    aliens2[2] = new Alien(grid_1, 1650, 499, bullet4);
-		    aliens2[3] = new Alien(grid_1, 2464, 339, bullet5);
-		    aliens2[4] = new Alien(grid_1, 3494, 499, bullet6);
-		    aliens2[5] = new Alien(grid_1, 4607, 339, bullet7);
-		    aliens2[6] = new Alien(grid_1, 5871, 2191, bullet8);
-		    aliens2[7] = new Alien(grid_1, 7414, 499, bullet8);
+			hero = new HeroSprite(grid_1,100,499, b1);			    // Hero for level 2. Always reuses Bullet 'b1'.
+		    aliens2[0] = new Alien(grid_1, 600, 499, b2);
+		    aliens2[1] = new Alien(grid_1, 1066, 339, b3);
+		    aliens2[2] = new Alien(grid_1, 1650, 499, b4);
+		    aliens2[3] = new Alien(grid_1, 2464, 339, b5);
+		    aliens2[4] = new Alien(grid_1, 3494, 499, b6);
+		    aliens2[5] = new Alien(grid_1, 4607, 339, b7);
+		    aliens2[6] = new Alien(grid_1, 5871, 2191, b8);
+		    aliens2[7] = new Alien(grid_1, 7414, 499, b9);
 		}
-	    
-	    /*
-	    else if(lv3) {
-	    	System.out.println("SETTING LVL 3 " + System.currentTimeMillis());
-	    	planet_stage = 3;
-			Levels.setLevel3(grid_1);
-			hero = new HeroSprite(grid_1,100,499, bullet);		// Hero for level 3.
-		    // Aliens for level 2. Previous bullet can be reused because level is new.
-		    aliens2[0] = new Alien(grid_1, 600, 499, bullet2);
-		    aliens2[1] = new Alien(grid_1, 1125, 370, bullet3);
-		    aliens2[2] = new Alien(grid_1, 1650, 499, bullet4);
-		    aliens2[3] = new Alien(grid_1, 3650, 340, bullet5);
-		    aliens2[4] = new Alien(grid_1, 5229, 339, bullet6);
-		    aliens2[5] = new Alien(grid_1, 6403, 339, bullet7);
-		    aliens2[6] = new Alien(grid_1, 7414, 499, bullet8);
-		}*/
 		
 	}
 
@@ -178,7 +189,7 @@ public class Main extends Application {
 		
 		if(planet_stage >= 1) {
 			
-			chrctr[0].updateSprite();
+			pic[0].updateSprite();
 			
 			if(planet_stage == 1) {
 				for(int i = 0; i < aliens1.length; i++) {
@@ -186,7 +197,7 @@ public class Main extends Application {
 				}
 			}
 			
-			if(planet_stage == 2) {
+			if(planet_stage == 2 && !wait_a_sec) {
 				for(int i = 0; i < aliens2.length; i++) {
 					aliens2[i].update();
 				}
@@ -266,24 +277,24 @@ public class Main extends Application {
 						break;
 					case SPACE:
 					case K:
-						if (!bullet.isActive() && hero.dir == 1) {
+						if (!b1.isActive() && hero.dir == 1) {
 							hero.fireBulletLeft();
 							//boom.play();
-						}else if (!bullet.isActive() && hero.dir == 2) {
+						}else if (!b1.isActive() && hero.dir == 2) {
 							hero.fireBullet();
 							//boom.play();
-						}else if (!bullet.isActive() && hero.dir == 3) {
+						}else if (!b1.isActive() && hero.dir == 3) {
 							//boom.stop();
-						}else if(!bullet.isActive() && left && hero.spr == 1) {
+						}else if(!b1.isActive() && left && hero.spr == 1) {
 							hero.fireBulletLeft();
 							//boom.play();
-						}else if(!bullet.isActive() && hero.spr == 1){
+						}else if(!b1.isActive() && hero.spr == 1){
 							hero.fireBullet();
 							//boom.play();
-						}else if(!bullet.isActive() && left) {
+						}else if(!b1.isActive() && left) {
 							hero.fireBulletLeft();
 							//boom.play();
-						}else if(!bullet.isActive()){
+						}else if(!b1.isActive()){
 							hero.fireBullet();
 							//boom.play();
 						}
@@ -428,6 +439,8 @@ public class Main extends Application {
 					
 					//currTime = Timer.getTimeSec(base);
 					
+				    engine.play();
+				
 					// Black background
 					gc.setFill(Color.BLACK);
 					gc.fillRect(0, 0, WIDTH, HEIGHT);
@@ -468,6 +481,7 @@ public class Main extends Application {
 									gc.fillText("CRASH LANDING.\nBRACE FOR IMPACT.", WIDTH/3, HEIGHT/2);
 							}
 							else {
+								wait = 0;
 								planet_stage = 1;
 								initialize();
 							}
@@ -513,7 +527,7 @@ public class Main extends Application {
 				
 				grid_1.render(gc);
 				hero.render(gc);
-				chrctr[0].render(gc);
+				pic[0].render(gc);
 				
 				
 				for(int i = 0; i < 7; i++) {
@@ -521,7 +535,22 @@ public class Main extends Application {
 				}
 			}
 			
-			else if(planet_stage == 2) {
+			else if(wait_a_sec) {
+				
+				if(wait < 40) {
+					wait++;
+					System.out.println("++++++++++++++++++++ " + wait);
+					if(currTime % 2 == 0)
+						gc.fillText("WELCOME TO THE JUNGLE", WIDTH/3, HEIGHT/2);
+				}
+				else {
+					planet_stage = 2;
+					initialize();
+					wait_a_sec = false;
+				}
+			}
+			
+			if(planet_stage == 2) {
 				
 				int cut = (vleft/2) % BWIDTH;
 				gc.drawImage(bk_forest, -cut, 0);
@@ -532,9 +561,9 @@ public class Main extends Application {
 				
 				grid_1.render(gc);
 				hero.render(gc);
-				chrctr[0].render(gc);	
+				pic[0].render(gc);	
 				
-				for(int i = 0; i < 7; i++) {
+				for(int i = 0; i < aliens2.length; i++) {
 					aliens2[i].render(gc);
 				}
 					

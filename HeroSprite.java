@@ -18,12 +18,12 @@ class HeroSprite
 	
 	public Bullet bullet;
 	public Color color;
-	public int width = 40;
-	public int height = 60;
 	public int dx = 0, dy = 0;
 	public int dir = 0;
 	public int jmp = 0;
 	public int spr = 0;
+	public int width = 40;
+	public int height = 60;
 	public int state;
 	public Grid g;
 	
@@ -135,17 +135,18 @@ class HeroSprite
 		System.out.println("locx: " + locx + " locy: " + locy + " planet_stage= " + Main.planet_stage);
 		if(Main.planet_stage == 1) {
 			if(locx >= 7500) {
-				Main.planet_stage = 0;
+				Main.planet_stage = 2;
+				Main.wait_a_sec = true;
 				Main.lv2 = true;
 			}
 		}
-		if(Main.planet_stage == 2) {
-			if(locx >= 7500) {
-				System.out.println("HEREAAAAAH");
-				Main.lv2 = false;
-				Main.lv3 = true;
-			}
-		}
+//		if(Main.planet_stage == 2) {
+//			if(locx >= 7500) {
+//				System.out.println("HEREAAAAAH");
+//				Main.lv2 = false;
+//				Main.lv3 = true;
+//			}
+//		}
 
 		if (dx > 0){
 			dx = g.moveRight(collisionBox(), dx);
