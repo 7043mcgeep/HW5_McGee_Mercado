@@ -7,6 +7,7 @@ class Bullet extends Sprite {
   double bx;
   double by;
   Grid grid;
+  static int count = 0;
 
   void updateSprite(){
 	// Check if sprite is active
@@ -23,8 +24,8 @@ class Bullet extends Sprite {
 
   void render(GraphicsContext gc){
     if (visible){
-       	gc.setFill(Color.GOLD);
-        gc.fillOval(x-Main.vleft, y+10, 6, 6);
+       	gc.setFill(Color.GREEN);
+        gc.fillOval(x-Main.vleft, y+25, 10, 10);
     }
   }
   

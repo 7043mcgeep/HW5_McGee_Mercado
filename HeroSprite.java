@@ -27,15 +27,15 @@ class HeroSprite
 	public int state;
 	public Grid g;
 	
-	Image image;
-	Image one = new Image("sprites/person_stag_r.gif");
-	Image oneLeft = new Image("sprites/person_stag_l.gif");
-	Image walk = new Image("sprites/person_right.gif");
-	Image walkLeft = new Image("sprites/person_left.gif");
-	Image jump = new Image("sprites/jump_r.gif");
-	Image jumpLeft = new Image("sprites/jump_l.gif");
-    Image run = new Image("sprites/run_r.gif");
-	Image runLeft = new Image("sprites/run_l.gif");
+	Image img;
+	Image stag_r = new Image("sprites/person_stag_r.gif");
+	Image stag_l = new Image("sprites/person_stag_l.gif");
+	Image walk_r = new Image("sprites/person_right.gif");
+	Image walk_l = new Image("sprites/person_left.gif");
+	Image jump_r = new Image("sprites/jump_r.gif");
+	Image jump_l = new Image("sprites/jump_l.gif");
+    Image run_r = new Image("sprites/run_r.gif");
+	Image run_l = new Image("sprites/run_l.gif");
 	 
 	public HeroSprite(Grid grid, int x, int y, Bullet b){
 		// locx, locy = top left corner of sprite
@@ -61,18 +61,19 @@ class HeroSprite
 		// keyboard listener)
 		if (dir == 1) {
 			dx = -7;
-			image = walkLeft;
+			img = walk_l;
 			if(spr == 1) {
 				dx = -12;
-				image = runLeft;
+				img = run_l;
+				
 			}
 		}
 		else if (dir == 2) {
 			dx = 7;
-			image = walk;
+			img = walk_r;
 			if(spr == 1) {
 				dx = 12;
-				image = run;
+				img = run_r;
 			}
 		}
 		else if (dir == 3) {
@@ -82,9 +83,9 @@ class HeroSprite
 		else {
 			dx = 0;
 			if(Main.left == false)
-				image = one;
+				img = stag_r;
 			else
-				image = oneLeft;
+				img = stag_l;
 		}
 		if ((state == STAND) && (jmp == 1)){
 			dy = -35;
@@ -94,11 +95,13 @@ class HeroSprite
 		}
 		if(state == JUMP) {
 			if(Main.left == true)
-				image = jumpLeft;
+				img = jump_l;
 			else
-				image = jump;
+				img = jump_r;
 			if(dir == 1)
-				image = jumpLeft;				
+				img = jump_l;
+			else if(dir == 2)
+				img = jump_r;
 		}
 		// Then do the moving
 		updatePosition();
@@ -126,6 +129,24 @@ class HeroSprite
 		// game Grid, not a Graphics context
 		//
 		// first handle sideways movement
+		
+		// If level 1 complete, go to asteroid stage 2.
+		
+		System.out.println("locx: " + locx + " locy: " + locy + " planet_stage= " + Main.planet_stage);
+		if(Main.planet_stage == 1) {
+			if(locx >= 7500) {
+				Main.planet_stage = 0;
+				Main.lv2 = true;
+			}
+		}
+		if(Main.planet_stage == 2) {
+			if(locx >= 7500) {
+				System.out.println("HEREAAAAAH");
+				Main.lv2 = false;
+				Main.lv3 = true;
+			}
+		}
+
 		if (dx > 0){
 			dx = g.moveRight(collisionBox(), dx);
 		}
@@ -170,7 +191,7 @@ class HeroSprite
 	}
 	
 	public void render(GraphicsContext gc){
-		gc.drawImage(image, locx-Main.vleft, locy - 20, 60, 90);
+		gc.drawImage(img, locx-Main.vleft, locy - 20, 60, 90);
 		gc.setStroke(Color.CYAN);
 		gc.strokeRect(locx-Main.vleft, locy-20, 60, 90);
 		if(powerup) powerup_t++;

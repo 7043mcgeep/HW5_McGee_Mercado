@@ -12,7 +12,7 @@ public class healthPack extends Sprite{
 	public Grid g;
 	
 	 Image image;
-	 Image health = new Image("sprites/healthPack.gif");
+	 //Image health = new Image("sprites/fuel.jpeg");
 	 boolean active=true, visible=true;
 
 	public healthPack(Grid grid, int x, int y){	

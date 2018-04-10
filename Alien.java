@@ -16,10 +16,10 @@ public class Alien{
 	  boolean active=true, visible=true, deadB=false;
 	
 	 Image image;
-	 Image v1 = new Image("sprites/villain1.gif");
-	 Image v1Left = new Image("sprites/villain1Left.gif");
-	 Image dead = new Image("sprites/villain1Dead.gif");
-	 Image deadLeft = new Image("sprites/villain1LeftDead.gif");
+	 Image v1 = new Image("sprites/AlienB.gif");
+	 Image v1Left = new Image("sprites/AlienB.gif");
+	 Image dead = new Image("sprites/AlienBdeath.gif");
+	 Image deadLeft = new Image("sprites/AlienBdeath.gif");
 	 
 	 int counter = 0;
 	 
@@ -36,7 +36,6 @@ public class Alien{
 	public void render(GraphicsContext gc){
 		if(visible && !deadB) {
 			gc.drawImage(image, vilx-Main.vleft, vily-20, 60, 90);
-			System.out.println("hereeeeeee");
 		}
 		if(deadB)
 			gc.drawImage(image, vilx-Main.vleft, vily+10, 90, 90);
@@ -50,7 +49,7 @@ public class Alien{
 			// keyboard listener)
 			if (HeroSprite.locx <= vilx) {
 				image = v1Left;
-					fireLeft();
+					//fireLeft();
 					if(HeroSprite.locx > vilx-700)
 						//Main.boom.play();
 					counter = 0;
@@ -77,11 +76,12 @@ public class Alien{
 	     bullet.resume();
 	   }
 	
-	public void fireLeft(){
+	/*public void fireLeft(){
+		 System.out.println(vilx + " " + vily);
 	     bullet.setPosition(vilx, vily);
 	     bullet.setVelocity(-20, 0);
 	     bullet.resume();
-	   }
+	   }*/
 	
 	 void suspend(){
 		 deadB = true;

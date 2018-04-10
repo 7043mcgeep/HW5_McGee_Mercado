@@ -26,7 +26,6 @@ public class Main extends Application {
 	final static int HEIGHT = 800;
 	
 	public static int waves = 0;
-	public boolean w_1, w_2, w_3;
 	public boolean hit;
 	public int passCount = 0;
 	int wait = 0;
@@ -41,8 +40,8 @@ public class Main extends Application {
 									// area (used for scrolling)
 	
 	HeroSprite hero;
-	Grid grid;
-	Image background;
+	Grid grid_1;
+	Image background, bk_forest, water;
 	Rock rocks[] = new Rock[5];
 	
 	public int			  ammo_ct = 0;			// Ammo count used in final score calculation.
@@ -58,11 +57,13 @@ public class Main extends Application {
 	int base = (int) System.currentTimeMillis();
 	int currTime = 0;
 	
+	int wait2 = 0;
+	
 	// Main menu flags
 	public static boolean main_menu = true;
 	
 	// Asteroid stage flags
-	public static boolean asteroid_stage = false;		// True upon game start (first stage)
+	public static int asteroid_stage = 0;				// 1 upon game start (first stage)
 	public static boolean player_blink = false;			// True after collision w/ asteroid. Player goes into invincibility
 														// for a short time.
 	public static boolean beat_dodge = false;			// Crash landing alert flag
@@ -72,128 +73,25 @@ public class Main extends Application {
 														// Used to stop rendering/initializing new asteroids.
 	public static int     planet_stage = 0;				// 1 is the first stage. After the 3rd stage, player wins.
 	public static boolean left = false;
+	public static boolean transition_lv2 = false;
+	public static boolean transition_lv3 = false;
+	public static boolean lv2 = false;
+	public static boolean lv3 = false;
 	
 	static Font font = Font.loadFont(Main.class.getResource("PressStart2P.ttf").toExternalForm(), 32);
 	static Font fontSmall = Font.loadFont(Main.class.getResource("PressStart2P.ttf").toExternalForm(), 22);
 	static Font fontSmaller = Font.loadFont(Main.class.getResource("PressStart2P.ttf").toExternalForm(), 12);
 	
 	Asteroid[] asteroids = new Asteroid[50];
-	Bullet bullet, bullet2;
+	Bullet bullet, bullet2, bullet3, bullet4, bullet5, bullet6, bullet7, bullet8;
 	Sprite chrctr[] = new Sprite[12];
-	Alien aliens[] = new Alien[12];
+	Alien aliens1[] = new Alien[7];
+	Alien aliens2[] = new Alien[7];
 	Player p =  new Player();
 	Score score;
 	Lives lives;
 	
-	
-	public void setLevel1()
-	{
-				// Put in a ground level
-				for (int i = 0; i < Grid.MWIDTH; i++)
-					if (!((i == 59 || i == 60) || (i == 76 || i == 77 || i == 78) || (i == 144 || i == 145)))
-					grid.setBlock(i, Grid.MHEIGHT-1);
-				
-				// Put in a ground level
-				for (int i = 0; i < Grid.MWIDTH; i++)
-					if (!((i == 59 || i == 60) || (i == 76 || i == 77 || i == 78) || (i == 144 || i == 145)))
-					grid.setBlock(i, Grid.MHEIGHT-2);
-				
-				// Put in a ground level
-				for (int i = 0; i < Grid.MWIDTH; i++)
-					if (!((i == 59 || i == 60) || (i == 76 || i == 77 || i == 78) || (i == 144 || i == 145)))
-					grid.setBlock(i, Grid.MHEIGHT-3);
-
-		// Place blocks
-		grid.setBlock(6,9);
-		grid.setBlock(10,9);
-		grid.setBlock(11,9);
-		grid.setBlock(12,9);grid.setBlock(12,6);
-		grid.setBlock(13,9);
-		grid.setBlock(14,9);
-		grid.setBlock(18,13);grid.setBlock(18,12);
-		grid.setBlock(19,13);grid.setBlock(19,12);
-		grid.setBlock(28,13);grid.setBlock(28,12);grid.setBlock(28,11);
-		grid.setBlock(29,13);grid.setBlock(29,12);grid.setBlock(29,11);
-		grid.setBlock(36,13);grid.setBlock(36,12);grid.setBlock(36,11);grid.setBlock(36,10);
-		grid.setBlock(37,13);grid.setBlock(37,12);grid.setBlock(37,11);grid.setBlock(37,10);
-		grid.setBlock(47,13);grid.setBlock(47,12);grid.setBlock(47,11);grid.setBlock(47,10);
-		grid.setBlock(48,13);grid.setBlock(48,12);grid.setBlock(48,11);grid.setBlock(48,10);
-		grid.setBlock(54,9);
-		grid.setBlock(67,10);
-		grid.setBlock(68,10);
-		grid.setBlock(69,10);
-		grid.setBlock(70,6);
-		grid.setBlock(71,6);
-		grid.setBlock(71,6);
-		grid.setBlock(72,6);
-		grid.setBlock(73,6);
-		grid.setBlock(74,6);
-		grid.setBlock(75,6);
-		grid.setBlock(76,6);
-		grid.setBlock(77,6);
-		grid.setBlock(82,6);
-		grid.setBlock(83,6);
-		grid.setBlock(84,6);
-		grid.setBlock(85,6);grid.setBlock(85,10);
-		grid.setBlock(91,10);
-		grid.setBlock(92,10);
-		grid.setBlock(97,10);
-		grid.setBlock(100,10);grid.setBlock(100,6);
-		grid.setBlock(103,10);
-		grid.setBlock(109,10);
-		grid.setBlock(112,6);
-		grid.setBlock(113,6);
-		grid.setBlock(114,6);
-		grid.setBlock(119,6);
-		grid.setBlock(120,6);
-		grid.setBlock(121,6);grid.setBlock(121,10);
-		grid.setBlock(122,6);grid.setBlock(122,10);
-		grid.setBlock(125,13);
-		grid.setBlock(126,13);grid.setBlock(126,12);
-		grid.setBlock(127,13);grid.setBlock(127,12);grid.setBlock(127,11);
-		grid.setBlock(128,13);grid.setBlock(128,12);grid.setBlock(128,11);grid.setBlock(128,10);
-		grid.setBlock(131,13);grid.setBlock(131,12);grid.setBlock(131,11);grid.setBlock(131,10);
-		grid.setBlock(132,13);grid.setBlock(132,12);grid.setBlock(132,11);
-		grid.setBlock(133,13);grid.setBlock(133,12);
-		grid.setBlock(134,13);
-		grid.setBlock(139,13);
-		grid.setBlock(140,13);grid.setBlock(140,12);
-		grid.setBlock(141,13);grid.setBlock(141,12);grid.setBlock(141,11);
-		grid.setBlock(142,13);grid.setBlock(142,12);grid.setBlock(142,11);grid.setBlock(142,10);
-		grid.setBlock(143,13);grid.setBlock(143,12);grid.setBlock(143,11);grid.setBlock(143,10);
-		grid.setBlock(146,13);grid.setBlock(146,12);grid.setBlock(146,11);grid.setBlock(146,10);
-		grid.setBlock(147,13);grid.setBlock(147,12);grid.setBlock(147,11);
-		grid.setBlock(148,13);grid.setBlock(148,12);
-		grid.setBlock(149,13);
-		grid.setBlock(154,13);grid.setBlock(154,12);
-		grid.setBlock(155,13);grid.setBlock(155,12);
-		grid.setBlock(159,10);
-		grid.setBlock(160,10);
-		grid.setBlock(161,10);
-		grid.setBlock(162,10);
-		grid.setBlock(170,13);grid.setBlock(170,12);
-		grid.setBlock(171,13);grid.setBlock(171,12);
-		grid.setBlock(172,13);
-		grid.setBlock(173,13);grid.setBlock(173,12);
-		grid.setBlock(174,13);grid.setBlock(174,12);grid.setBlock(174,11);
-		grid.setBlock(175,13);grid.setBlock(175,12);grid.setBlock(175,11);grid.setBlock(175,10);
-		grid.setBlock(176,13);grid.setBlock(176,12);grid.setBlock(176,11);grid.setBlock(176,10);grid.setBlock(176,9);
-		grid.setBlock(177,13);grid.setBlock(177,12);grid.setBlock(177,11);grid.setBlock(177,10);grid.setBlock(177,9);grid.setBlock(177,8);
-		grid.setBlock(178,13);grid.setBlock(178,12);grid.setBlock(178,11);grid.setBlock(178,10);grid.setBlock(178,9);grid.setBlock(178,8);grid.setBlock(178,7);
-		grid.setBlock(179,13);grid.setBlock(179,12);grid.setBlock(179,11);grid.setBlock(179,10);grid.setBlock(179,9);grid.setBlock(179,8);grid.setBlock(179,7);grid.setBlock(179,6);
-		grid.setBlock(180,13);grid.setBlock(180,12);grid.setBlock(180,11);grid.setBlock(180,10);grid.setBlock(180,9);grid.setBlock(180,8);grid.setBlock(180,7);grid.setBlock(180,6);
-		grid.setBlock(190,13);grid.setBlock(190,12);grid.setBlock(190,11);grid.setBlock(190,10);grid.setBlock(190,9);grid.setBlock(190,8);grid.setBlock(190,7);grid.setBlock(190,6);grid.setBlock(190,5);grid.setBlock(190,4);
-		rocks[0] = new Rock(0,250,100,0);
-		rocks[1] = new Rock(400,200,100,20);
-		rocks[2] = new Rock(100,300,100,40);
-		rocks[3] = new Rock(1000,200,120,30);
-		rocks[4] = new Rock(1200,250,120,0);
-	    aliens[0] = new Alien(grid, 10, 10, bullet);
-	}
-	
-	/**
-	 * Set up initial data structures/values
-	 */
+	// Set up initial variables
 	void initialize()
 	{
 		
@@ -207,14 +105,61 @@ public class Main extends Application {
 		lives = new Lives();
 		
 		background = new Image("bkgnd.jpg");
+		bk_forest = new Image("sprites/forest.jpeg");
+		water = new Image("sprites/WaterWorld.png");
 		Image r1 = new Image("rock_glow.gif");
 		Image r2 = new Image("rock_glow2.gif");
 		Image r3 = new Image("rock_glow3.gif");
 		Rock.setImages(r1,r2,r3);
-
-		grid = new Grid();
-		hero = new HeroSprite(grid,100,499, bullet);
-		setLevel1();
+		
+		grid_1 = new Grid();
+		
+	    if(planet_stage == 1 && !lv2 && !lv3) {
+	    	System.out.println("SETTING LVL 1 " + System.currentTimeMillis());
+	    	Levels.setLevel1(grid_1, rocks);
+	    	hero = new HeroSprite(grid_1,100,499, bullet);
+			// These values were obtained by printing location of the hero (loxc, locy).
+			// Thus, I know where to exactly place the aliens instead of guess/test/repeat.
+			// Aliens for level 1:
+		    aliens1[0] = new Alien(grid_1, 600, 499, bullet2);
+		    aliens1[1] = new Alien(grid_1, 1125, 370, bullet3);
+		    aliens1[2] = new Alien(grid_1, 1650, 499, bullet4);
+		    aliens1[3] = new Alien(grid_1, 3650, 340, bullet5);
+		    aliens1[4] = new Alien(grid_1, 5229, 339, bullet6);
+		    aliens1[5] = new Alien(grid_1, 6403, 339, bullet7);
+		    aliens1[6] = new Alien(grid_1, 7414, 499, bullet8);
+	    }
+	    else if(lv2) {
+	    	System.out.println("SETTING LVL 2 " + System.currentTimeMillis());
+			Levels.setLevel2(grid_1);
+			planet_stage = 2;
+			hero = new HeroSprite(grid_1,100,499, bullet);			    // Hero for level 2.
+		    aliens2[0] = new Alien(grid_1, 600, 499, bullet2);
+		    aliens2[1] = new Alien(grid_1, 1066, 339, bullet3);
+		    aliens2[2] = new Alien(grid_1, 1650, 499, bullet4);
+		    aliens2[3] = new Alien(grid_1, 2464, 339, bullet5);
+		    aliens2[4] = new Alien(grid_1, 3494, 499, bullet6);
+		    aliens2[5] = new Alien(grid_1, 4607, 339, bullet7);
+		    aliens2[6] = new Alien(grid_1, 5871, 2191, bullet8);
+		    aliens2[7] = new Alien(grid_1, 7414, 499, bullet8);
+		}
+	    
+	    /*
+	    else if(lv3) {
+	    	System.out.println("SETTING LVL 3 " + System.currentTimeMillis());
+	    	planet_stage = 3;
+			Levels.setLevel3(grid_1);
+			hero = new HeroSprite(grid_1,100,499, bullet);		// Hero for level 3.
+		    // Aliens for level 2. Previous bullet can be reused because level is new.
+		    aliens2[0] = new Alien(grid_1, 600, 499, bullet2);
+		    aliens2[1] = new Alien(grid_1, 1125, 370, bullet3);
+		    aliens2[2] = new Alien(grid_1, 1650, 499, bullet4);
+		    aliens2[3] = new Alien(grid_1, 3650, 340, bullet5);
+		    aliens2[4] = new Alien(grid_1, 5229, 339, bullet6);
+		    aliens2[5] = new Alien(grid_1, 6403, 339, bullet7);
+		    aliens2[6] = new Alien(grid_1, 7414, 499, bullet8);
+		}*/
+		
 	}
 
 	public boolean collided(int k) {
@@ -231,9 +176,22 @@ public class Main extends Application {
 	int u_base = (int) System.currentTimeMillis();
 	void update() {
 		
-		if(planet_stage == 1) {
+		if(planet_stage >= 1) {
+			
 			chrctr[0].updateSprite();
-			aliens[0].update();
+			
+			if(planet_stage == 1) {
+				for(int i = 0; i < aliens1.length; i++) {
+					aliens1[i].update();
+				}
+			}
+			
+			if(planet_stage == 2) {
+				for(int i = 0; i < aliens2.length; i++) {
+					aliens2[i].update();
+				}
+			}
+			
 			hero.update();
 			for (int i = 0; i < rocks.length; i++)
 				rocks[i].update();
@@ -257,32 +215,28 @@ public class Main extends Application {
 				asteroids[k].fullPass = true;
 				passCount++;
 			}
+			
 		}
+		
 
 		// When the same asteroid comes back again, it will still have the false attribute.
 		// Reset it here.
 		if(passCount == 50) {
-			System.out.println(waves);
 			for (int k = 0; k < asteroids.length; k++) {
 				asteroids[k].hit = false;
 				asteroids[k].fullPass = false;
 			}
-			passCount = 0;
 			
 			if(waves < 4)
 				waves++;
 			
-			if(waves == 0) w_1 = true;
-			
-			if(waves == 1) w_2 = true;
-			
-			if(waves == 2) w_3 = true;
-			
 			if(waves == 3)
 				beat_dodge = true;
+			
+			passCount = 0;
 		}
 				
-		if(planet_stage != 1 && !main_menu) {
+		if(planet_stage < 1 && !main_menu) {
 			for (Asteroid b: asteroids)
 				b.move();
 		}
@@ -302,12 +256,12 @@ public class Main extends Application {
 						break;
 					case UP:
 					case W:
-						if(planet_stage == 1) {	hero.jmp = 1; break; }
-						else {	p.setUpKey(true); break; }
+						if(planet_stage >= 1) {	hero.jmp = 1; break; }
+						else {	p.setUpKey(true); break; }	
 					case S:
 					case DOWN:
-						if(planet_stage == 1) {	hero.dir = 3; break; }
-						else if (asteroid_stage){	p.setDownKey(true); break; }
+						if(planet_stage >= 1) {	hero.dir = 3; break; }
+						else if (asteroid_stage == 1){	p.setDownKey(true); break; }
 					case SHIFT: hero.spr = 1;
 						break;
 					case SPACE:
@@ -346,8 +300,8 @@ public class Main extends Application {
 					case ENTER:
 						if(enter < 2 && main_menu){
 							base = (int) System.currentTimeMillis();
-							//asteroid_stage = true;
-							planet_stage = 1;
+							asteroid_stage = 1;
+							//planet_stage = 1;
 							main_menu = false;
 							enter++;
 						}
@@ -359,16 +313,16 @@ public class Main extends Application {
 		scene.setOnKeyReleased(
 				e -> {
 					KeyCode key = e.getCode();
-					if (planet_stage == 1 && key == KeyCode.D|| key == KeyCode.RIGHT) {
+					if (planet_stage >= 1 && key == KeyCode.D|| key == KeyCode.RIGHT) {
 							hero.dir = 0;
 							left = false;
 					}
-					if(planet_stage == 1 && key == KeyCode.A || key == KeyCode.LEFT) {
+					if(planet_stage >= 1 && key == KeyCode.A || key == KeyCode.LEFT) {
 							hero.dir = 0;
 							left = true;
 					}
 					if(key == KeyCode.S || key == KeyCode.DOWN) {
-						if(planet_stage == 1) {
+						if(planet_stage >= 1) {
 							if(left) {
 								hero.dir = 0;
 								left = true;
@@ -377,11 +331,11 @@ public class Main extends Application {
 								left = false;
 							}
 						}
-						else if(asteroid_stage)
+						else if(asteroid_stage == 1)
 							p.setDownKey(false);
 					}
 					if(key == KeyCode.W || key == KeyCode.UP) {
-						if(planet_stage == 1) {
+						if(planet_stage >= 1) {
 							if(left) {
 								hero.jmp = 0;
 								left = true;
@@ -390,7 +344,7 @@ public class Main extends Application {
 								left = false;
 							}
 						}
-						else if(asteroid_stage)
+						else if(asteroid_stage == 1)
 							p.setUpKey(false);
 					} 
 					if(key == KeyCode.SHIFT)
@@ -401,14 +355,15 @@ public class Main extends Application {
 	void checkScrolling(){
 		// Test if hero is at edge of view window and scroll appropriately
 		if (hero.locx() < (vleft+SCROLL)){
+			
 			vleft = hero.locx()-SCROLL;
 			if (vleft < 0)
 				vleft = 0;
 		}
 		if ((hero.locx() + hero.width()) > (vleft+WIDTH-SCROLL)){
 			vleft = hero.locx()+hero.width()-WIDTH+SCROLL;
-			if (vleft > (grid.width()-WIDTH))
-				vleft = grid.width()-WIDTH;
+			if (vleft > (grid_1.width()-WIDTH))
+				vleft = grid_1.width()-WIDTH;
 		}
 	}
 	
@@ -439,7 +394,6 @@ public class Main extends Application {
 					gc.setFont(font);
 					gc.setFill(Color.WHITE);
 					gc.fillText("SPACEPERSON", WIDTH/3, 50);
-					//colorText(gc, "SPACEPERSON", WIDTH/3, 50);
 					
 					gc.setFont(fontSmall);
 					gc.setFill(Color.WHITE);
@@ -461,7 +415,6 @@ public class Main extends Application {
 			}
 			
 			else if(game_over) {
-				System.out.println("GAME OVER");
 				// Black background
 				gc.setFill(Color.BLACK);
 				gc.fillRect(0, 0, WIDTH, HEIGHT);
@@ -469,11 +422,9 @@ public class Main extends Application {
 				gc.setFont(fontSmall);
 				gc.setFill(Color.WHITE);
 				gc.fillText("GAME OVER", WIDTH/2.5, 160);
-				
-				
 			}
 			
-			else if(asteroid_stage && (planet_stage != 1)) {
+			else if(asteroid_stage == 1 && (planet_stage < 1)) {
 					
 					//currTime = Timer.getTimeSec(base);
 					
@@ -485,21 +436,22 @@ public class Main extends Application {
 					for (Asteroid b: asteroids)
 						b.render(gc);
 						
-					if(w_1) {
+					if(waves == 0) {
 						gc.setFill(Color.WHITE);
 						gc.setFont(font);
 						gc.fillText("WAVE 1", WIDTH/3, 50);
 					}
 					
-					if(w_2) {
-						w_1 = false;
+					else if(waves == 1) {
 						gc.setFill(Color.WHITE);
 						gc.setFont(font);
 						gc.fillText("WAVE 2", WIDTH/3, 50);
+						
+						if(currTime == 31)
+							waves = 2;
 					}
 					
-					if(w_3) {
-						w_2 = false;
+					else if(waves == 2) {
 						gc.setFill(Color.WHITE);
 						gc.setFont(font);
 						gc.fillText("WAVE 3", WIDTH/3, 50);
@@ -515,8 +467,10 @@ public class Main extends Application {
 								if(currTime % 2 == 0)
 									gc.fillText("CRASH LANDING.\nBRACE FOR IMPACT.", WIDTH/3, HEIGHT/2);
 							}
-							else
+							else {
 								planet_stage = 1;
+								initialize();
+							}
 					
 					}	
 					
@@ -548,21 +502,8 @@ public class Main extends Application {
 					p.render(gc);
 			}
 			
-			else if(transition_planet) {	
-				// Black background
-				gc.setFill(Color.BLACK);
-				gc.fillRect(0, 0, WIDTH, HEIGHT);
+			else if(planet_stage == 1) {
 				
-				// Text goes last to overlay previous items.
-				gc.setFill(Color.WHITE);
-				gc.setFont(font);
-				gc.fillText("YOU HAVE CRASH LANDED ON PLANET ZORG", WIDTH/3, HEIGHT/2);
-				
-				Player.render_transition = true;
-			}	
-			
-			if(planet_stage == 1) {
-				// Merging scroll
 				int cut = (vleft/2) % BWIDTH;
 				gc.drawImage(background, -cut, 0);
 				gc.drawImage(background, BWIDTH-cut, 0);
@@ -570,11 +511,33 @@ public class Main extends Application {
 				for (int i = 0; i < rocks.length; i++)
 					rocks[i].render(gc);
 				
-				grid.render(gc);
+				grid_1.render(gc);
 				hero.render(gc);
-				gc.setFill(Color.WHITE);
-				gc.setFont(fontSmall);
-				gc.fillText("\"Weird... no ammo.\nAnd no enemies to fight...\nMaybe in the final version.\"", WIDTH/3, 100);
+				chrctr[0].render(gc);
+				
+				
+				for(int i = 0; i < 7; i++) {
+					aliens1[i].render(gc);
+				}
+			}
+			
+			else if(planet_stage == 2) {
+				
+				int cut = (vleft/2) % BWIDTH;
+				gc.drawImage(bk_forest, -cut, 0);
+				gc.drawImage(bk_forest, BWIDTH-cut, 0);
+				
+				for (int i = 0; i < rocks.length; i++)
+					rocks[i].render(gc);
+				
+				grid_1.render(gc);
+				hero.render(gc);
+				chrctr[0].render(gc);	
+				
+				for(int i = 0; i < 7; i++) {
+					aliens2[i].render(gc);
+				}
+					
 			}
 				
 			// For now, always render score and current time.
@@ -609,7 +572,7 @@ public class Main extends Application {
 	
 	@Override
 	public void start(Stage theStage) {
-		theStage.setTitle("Super Mafio Bros");
+		theStage.setTitle("SPACE PERSON");
 
 		Group root = new Group();
 		Scene theScene = new Scene(root);

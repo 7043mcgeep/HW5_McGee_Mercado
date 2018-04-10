@@ -21,7 +21,6 @@ class Sprite{
   	return active;
   }
 
-  // Inactive player upon death.
   void suspend(){
     active = false; visible = false;
   }

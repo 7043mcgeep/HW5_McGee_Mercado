@@ -15,6 +15,7 @@ class Grid
 	static final int CELLSIZE = 40; // Number of pixels per map cell
 	
 	Image block = new Image("ground.png"); // CELLSIZE x CELLSIZE
+	Image grass = new Image("sprites/grass.png");
 	Grid(){
 		for (int row = 0; row < MHEIGHT; row++)
 		 for (int col = 0; col < MWIDTH; col++)
@@ -133,7 +134,9 @@ class Grid
 			col2 = MWIDTH-1;
 		for (int row = 0; row < MHEIGHT; row++)
 		 for (int col = col1; col <= col2; col++)
-			if (map[col][row] == 1)
-				gc.drawImage(block, col*CELLSIZE-Main.vleft, row*CELLSIZE, CELLSIZE, CELLSIZE);
+			if (map[col][row] == 1) {
+				if(Main.planet_stage == 1)
+					gc.drawImage(block, col*CELLSIZE-Main.vleft, row*CELLSIZE, CELLSIZE, CELLSIZE);
+			}
 	}
 }
