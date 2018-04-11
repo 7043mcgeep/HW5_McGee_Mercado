@@ -14,7 +14,7 @@ class Grid
 	int map[][] = new int[MWIDTH][MHEIGHT];
 	static final int CELLSIZE = 40; // Number of pixels per map cell
 	
-	Image block = new Image("ground.png"); // CELLSIZE x CELLSIZE
+	Image block = new Image("ground.png");
 	Image grass = new Image("sprites/grass.png");
 	Grid(){
 		for (int row = 0; row < MHEIGHT; row++)

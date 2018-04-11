@@ -1,5 +1,5 @@
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
+import javafx.scene.image.Image;
 
 class Bullet extends Sprite {
 
@@ -8,6 +8,7 @@ class Bullet extends Sprite {
   double by;
   Grid grid;
   static int count = 0;
+  Image laser = new Image("sprites/laser_beam.gif");
 
   void updateSprite(){
 	// Check if sprite is active
@@ -24,8 +25,7 @@ class Bullet extends Sprite {
 
   void render(GraphicsContext gc){
     if (visible){
-       	gc.setFill(Color.GREEN);
-        gc.fillOval(x-Main.vleft, y+25, 10, 10);
+        gc.drawImage(laser,x-Main.vleft, y+37, 32, 32);
     }
   }
   

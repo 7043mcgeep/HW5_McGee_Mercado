@@ -57,6 +57,8 @@ public class Main extends Application {
 	
 	public static boolean game_over = false;
 	
+	public static boolean initialized_lv1 = false;
+	
 	// Timing variables
 	int base = (int) System.currentTimeMillis();
 	int currTime = 0;
@@ -76,6 +78,7 @@ public class Main extends Application {
 	public static boolean transition_planet = false;	// True after player dodges all asteroids in wave 3.
 														// Used to stop rendering/initializing new asteroids.
 	public static int     planet_stage = 0;				// 1 is the first stage. After the 3rd stage, player wins.
+	public static int	  stop_ct = 0;
 	public static boolean left = false;
 	public static boolean transition_lv2 = false;
 	public static boolean transition_lv3 = false;
@@ -88,14 +91,18 @@ public class Main extends Application {
 	static Font fontSmaller = Font.loadFont(Main.class.getResource("PressStart2P.ttf").toExternalForm(), 12);
 	
 	// Audio clips: a very special thanks to: http://www.downloadfreesound.com/8-bit-sound-effects/
-	AudioClip alien_grunt, alien_death, engine, forest_s, forest_noise, lost, portal, shoot1, shoot2, win;
-	MediaPlayer media;
+	AudioClip alien_grunt, alien_death, engine, portal, shoot1, shoot2, win,
+	asteroid_hit, alert_crash;
+	
+	// Media player for longer songs. Media2 used for layering background music in forest level.
+	MediaPlayer media, media2;
 	
 	// Longer songs
-	Media mars_s;
+	Media mars_s, lost, forest_s, forest_noise;
 	
 	Asteroid[] asteroids = new Asteroid[50];
-	Bullet b1, b2, b3, b4, b5, b6, b7, b8, b9;
+	Bullet b1;
+	BulletAlien b2, b3, b4, b5, b6, b7, b8, b9;
 	Sprite pic[] = new Sprite[9];
 	Alien aliens1[] = new Alien[7];
 	Alien aliens2[] = new Alien[8];
@@ -107,20 +114,26 @@ public class Main extends Application {
 	void initialize()
 	{
 		engine = new AudioClip(ClassLoader.getSystemResource("audio/engine.wav").toString());
+		engine.setVolume(0.3);
+		asteroid_hit = new AudioClip(ClassLoader.getSystemResource("audio/asteroid_hit.wav").toString());
+		asteroid_hit.setVolume(0.4);
+		alert_crash = new AudioClip(ClassLoader.getSystemResource("audio/alert_crash.wav").toString());
+		alert_crash.setVolume(0.3);
+		
 		engine.setVolume(0.5);
 		
 		for (int i = 0; i < asteroids.length; i++)
 			asteroids[i] = new Asteroid();
 		
 		pic[0]= b1 = new Bullet();
-		pic[1]= b2 = new Bullet();
-		pic[2]= b3 = new Bullet();
-		pic[3]= b4 = new Bullet();
-		pic[4]= b5 = new Bullet();
-		pic[5]= b6 = new Bullet();
-		pic[6]= b7 = new Bullet();
-		pic[7]= b8 = new Bullet();
-		pic[8]= b9 = new Bullet();
+		pic[1]= b2 = new BulletAlien();
+		pic[2]= b3 = new BulletAlien();
+		pic[3]= b4 = new BulletAlien();
+		pic[4]= b5 = new BulletAlien();
+		pic[5]= b6 = new BulletAlien();
+		pic[6]= b7 = new BulletAlien();
+		pic[7]= b8 = new BulletAlien();
+		pic[8]= b9 = new BulletAlien();
 		
 		p = new Player();
 		score = new Score();
@@ -137,9 +150,13 @@ public class Main extends Application {
 		grid_1 = new Grid();
 		
 	    if(planet_stage == 1 && !lv2 && !lv3) {
+	    	
+			lost = new Media(ClassLoader.getSystemResource("audio/lost.mp3").toString());
 	    	mars_s = new Media(ClassLoader.getSystemResource("audio/mars.mp3").toString());
+	    	
+	    	// On stage 1, play mars song.
 	    	media = new MediaPlayer(mars_s);
-			media.setCycleCount(20);
+			media.setCycleCount(5);
 			media.play();
 			media.setVolume(0.7);
 	    	
@@ -156,11 +173,26 @@ public class Main extends Application {
 		    aliens1[4] = new Alien(grid_1, 5229, 339, b6);
 		    aliens1[5] = new Alien(grid_1, 6403, 339, b7);
 		    aliens1[6] = new Alien(grid_1, 7414, 499, b8);
+		    
+		    initialized_lv1 = true;
 	    }
 	    else if(planet_stage == 2) {
+	    	forest_s = new Media(ClassLoader.getSystemResource("audio/forest.mp3").toString());
+	    	forest_noise = new Media(ClassLoader.getSystemResource("audio/forest_noise.mp3").toString());
+	    	media.stop();
+	    	
+			media = new MediaPlayer(forest_s);
+			media2 = new MediaPlayer(forest_noise);
+			
+			media.play();
+			media.setVolume(0.6);
+			
+			media2.play();
+			media2.setVolume(0.4);
+	    	
 	    	System.out.println("SETTING LVL 2 " + System.currentTimeMillis());
 			Levels.setLevel2(grid_1);
-			hero = new HeroSprite(grid_1,100,499, b1);			    // Hero for level 2. Always reuses Bullet 'b1'.
+			hero = new HeroSprite(grid_1,100,499, b1);		 // Hero for level 2. Always reuses Bullet 'b1'.
 		    aliens2[0] = new Alien(grid_1, 600, 499, b2);
 		    aliens2[1] = new Alien(grid_1, 1066, 339, b3);
 		    aliens2[2] = new Alien(grid_1, 1650, 499, b4);
@@ -189,17 +221,49 @@ public class Main extends Application {
 		
 		if(planet_stage >= 1) {
 			
+			// Space Person's bullet sprite
 			pic[0].updateSprite();
+
+			if(initialized_lv1 && planet_stage == 1) {
+				
+			}
 			
-			if(planet_stage == 1) {
+			if(planet_stage == 1 && initialized_lv1) {
 				for(int i = 0; i < aliens1.length; i++) {
 					aliens1[i].update();
+					
+					for(int j = 0; j < pic.length; j++) {
+						
+						if(pic[j].bounds().intersects(aliens1[i].collisionBox()) && aliens1[i].active) {
+							if(pic[j].active) {
+								aliens1[i].hits--;
+								pic[j].suspend();
+							}
+							if(aliens1[i].hits <= 0)
+								aliens1[i].suspend();
+						}
+					}
+					
 				}
 			}
 			
 			if(planet_stage == 2 && !wait_a_sec) {
 				for(int i = 0; i < aliens2.length; i++) {
 					aliens2[i].update();
+					
+					for(int j = 0; j < pic.length; j++) {
+						
+						if(pic[j].bounds().intersects(aliens2[i].collisionBox()) && aliens2[i].active) {
+							if(pic[j].active) {
+								aliens2[i].hits--;
+								pic[j].suspend();
+							}
+							if(aliens2[i].hits <= 0)
+								aliens2[i].suspend();
+						}	
+						
+					}
+
 				}
 			}
 			
@@ -215,13 +279,14 @@ public class Main extends Application {
 		for (int k = 0; k < asteroids.length; k++) {
 			// Check if player is hit by asteroid k
 			if (collided(k) && asteroids[k].hit == false && player_blink == false && asteroids[k].fullPass == false) {		// Check collision (w/ invincibility frame)
+				asteroid_hit.play();
 				player_blink = true;
 				lives.lives -= 1;
 				asteroids[k].hit = true;
 			}
 			
 			// Asteroid k leaves the screen on the left side
-			if(asteroids[k].x + asteroids[k].w/2 < 50 && passCount != 50 && !asteroids[k].fullPass && !Player.landing_sequence){
+			if((asteroids[k].x + asteroids[k].w/2 < 50) && (passCount < 50) && (!asteroids[k].fullPass) && !Player.landing_sequence){
 				score.score += 100;
 				asteroids[k].fullPass = true;
 				passCount++;
@@ -312,7 +377,6 @@ public class Main extends Application {
 						if(enter < 2 && main_menu){
 							base = (int) System.currentTimeMillis();
 							asteroid_stage = 1;
-							//planet_stage = 1;
 							main_menu = false;
 							enter++;
 						}
@@ -426,6 +490,16 @@ public class Main extends Application {
 			}
 			
 			else if(game_over) {
+				
+				// Do this once to prevent scary Smash Mouth echoing... :
+				if(stop_ct < 1) {
+					media.stop();
+					media = new MediaPlayer(lost);
+					media.play();
+					media.setVolume(0.7);
+					stop_ct++;
+				}
+				
 				// Black background
 				gc.setFill(Color.BLACK);
 				gc.fillRect(0, 0, WIDTH, HEIGHT);
@@ -477,8 +551,10 @@ public class Main extends Application {
 							gc.setFont(font);
 							if(wait < 260) {
 								wait++;
-								if(currTime % 2 == 0)
+								if(currTime % 2 == 0) {
+									alert_crash.play();
 									gc.fillText("CRASH LANDING.\nBRACE FOR IMPACT.", WIDTH/3, HEIGHT/2);
+								}
 							}
 							else {
 								wait = 0;

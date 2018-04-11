@@ -12,6 +12,7 @@ public class Alien{
 	public int dx = 0, dy = 0;
 	public int dir = 0;
 	public Grid g;
+	public int hits;
 	
 	  boolean active=true, visible=true, deadB=false;
 	
@@ -23,14 +24,14 @@ public class Alien{
 	 
 	 int counter = 0;
 	 
-	 Bullet bullet;
+	 BulletAlien bullet;
 
-	public Alien(Grid grid, int x, int y, Bullet b){
+	public Alien(Grid grid, int x, int y, BulletAlien b2){
 		vilx = x;
 		vily = y;
 		g = grid;
 		color = Color.RED;
-		bullet = b;
+		bullet = b2;
 	}
 	
 	public void render(GraphicsContext gc){
