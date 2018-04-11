@@ -54,7 +54,9 @@ public class Main extends Application {
 	
 	HeroSprite hero;
 	Grid grid_1;
-	Image background, bk_forest, water;
+	Image background, bk_forest, water, up, down, left_key, right, ctrl_key, space, shift, w_key, s_key, a_key, d_key, tip1, tip2;
+	Image powerup;
+	Image new_life;
 	Rock rocks[] = new Rock[5];
 	static Portal portal;
 	
@@ -132,6 +134,24 @@ public class Main extends Application {
 	// Set up initial variables
 	void initialize()
 	{
+//		powerup = new Image("sprites/fist.gif)");
+//		new_life = new Image("sprites/meds.gif)");
+//		
+		up = new Image("sprites/pc_up.png");
+		down = new Image("sprites/pc_down.png");
+		left_key = new Image("sprites/pc_left.png");
+		right = new Image("sprites/pc_right.png");
+	    w_key = new Image("sprites/pc_w.png");
+		a_key = new Image("sprites/pc_a.png");
+		s_key = new Image("sprites/pc_s.png");
+		d_key = new Image("sprites/pc_d.png");
+		ctrl_key = new Image("sprites/pc_ctrl.png");
+		space = new Image("sprites/pc_space.png");
+		
+		shift = new Image("sprites/pc_shift.png");
+		tip1 = new Image("sprites/tip1.png");
+		tip2 = new Image("sprites/tip2.png");
+		
 		engine = new AudioClip(ClassLoader.getSystemResource("audio/engine.wav").toString());
 		engine.setVolume(0.1);
 		asteroid_hit = new AudioClip(ClassLoader.getSystemResource("audio/asteroid_hit.wav").toString());
@@ -264,27 +284,45 @@ public class Main extends Application {
 			for(int j = 0; j < pic.length; j++)
 				pic[j].updateSprite();
 			
+			// Check if hero is hit by aliens' bullets
+			for(int k = 1; k < pic.length; k++){
+				if(pic[k].bounds().intersects(hero.collisionBox())) {
+					if(pic[k].active) {
+						hero_grunt.play();
+						lives.lives--;
+						pic[k].suspend();
+					}
+					if(lives.lives == 0) {
+						hero_grunt.play();
+						pic[0].suspend();
+						game_over = true;
+					}
+				}
+				
+				// Make sure aliens' bullets cannot go through walls!
+				if (pic[k].dx > 0){
+					pic[k].dx = grid_1.moveRight(pic[k].bounds(), pic[k].dx);
+				}else if (pic[k].dx < 0){
+					pic[k].dx = -grid_1.moveLeft(pic[k].bounds(), -pic[k].dx);
+				}else
+					pic[k].suspend();
+			}
+			
+			// Make sure that space person's bullet cannot go through a grid block... that's cheating!
+			pic[0].updateSprite();
+			if (pic[0].dx > 0){
+				pic[0].dx = grid_1.moveRight(pic[0].bounds(), pic[0].dx);
+			}else if (pic[0].dx < 0){
+				pic[0].dx = -grid_1.moveLeft(pic[0].bounds(), -pic[0].dx);
+			}else
+				pic[0].suspend();
+			
 			if(planet_stage == 1 && initialized_lv1) {
 				
 				for(int i = 0; i < aliens1.length; i++) {
 					aliens1[i].update();
 					
 					for(int j = 0; j < pic.length; j++) {
-						
-						for(int k = 1; k < pic.length; k++){
-							if(pic[k].bounds().intersects(hero.collisionBox())) {
-								if(pic[k].active) {
-									hero_grunt.play();
-									lives.lives--;
-									pic[k].suspend();
-								}
-								if(lives.lives == 0) {
-									hero_grunt.play();
-									pic[0].suspend();
-									game_over = true;
-								}
-							}
-						}
 						
 						// Check if alien is hit by hero's bullet
 						if(b1.collisionBox().intersects(aliens1[i].collisionBox()) && aliens1[i].active) {
@@ -306,31 +344,6 @@ public class Main extends Application {
 						if(hero.collisionBox().intersects(portal.collisionBox()))
 							portal_hit = true;
 					}
-					
-						/*// Check if hero is hit by alien bullets
-						if(pic[1].bounds().intersects(hero.collisionBox()) ||
-										pic[2].bounds().intersects(hero.collisionBox()) ||
-										pic[3].bounds().intersects(hero.collisionBox()) ||
-										b5.collisionBox().intersects(hero.collisionBox()) ||
-										b6.collisionBox().intersects(hero.collisionBox()) ||
-										b7.collisionBox().intersects(hero.collisionBox()) ||
-										b8.collisionBox().intersects(hero.collisionBox())
-										&& pic[0].active){ */ 
-//					for(int k = 1; k < 6; k++) {
-//						if(b2.collisionBox().intersects(hero.collisionBox())) {
-//							if(pic[0].active) {
-//								hero_grunt.play();
-//								lives.lives--;
-//								pic[0].suspend();
-//							}
-//							if(lives.lives == 0) {
-//								hero_grunt.play();
-//								pic[0].suspend();
-//								game_over = true;
-//							}
-//						}
-//					}
-					
 					
 				}
 			}
@@ -447,7 +460,7 @@ public class Main extends Application {
 							shoot1.play();
 						}else if(!b1.isActive() && hero.spr == 1){
 							hero.fireBullet();
-							//boom.play();
+							shoot1.play();
 						}else if(!b1.isActive() && left) {
 							hero.fireBulletLeft();
 							shoot1.play();
@@ -461,7 +474,7 @@ public class Main extends Application {
 						break;
 					case C:
 						if(main_menu) {
-							
+							break;
 						}
 						debug_mode = false;
 						break;
@@ -472,12 +485,22 @@ public class Main extends Application {
 							beat_dodge = true;
 							main_menu = false;
 							enter++;
+							break;
 						}
 						else break;
 					case I:
 						if(main_menu){
 							instructions = true;
 							main_menu = false;
+							break;
+						}
+						else break;
+					case M:
+						if(instructions && !main_menu) {
+							System.out.println("M");
+							instructions = false;
+							main_menu = true;
+							break;
 						}
 						else break;
 					default:
@@ -588,7 +611,7 @@ public class Main extends Application {
 				
 			}
 			
-			else if(instructions) {
+			if(instructions) {
 				
 				// Do this once to prevent scary Smash Mouth echoing... :
 				if(stop_ct < 1) {
@@ -604,10 +627,49 @@ public class Main extends Application {
 				gc.setFont(fontSmall);
 				gc.setFill(Color.WHITE);
 				gc.fillText("INSTRUCTIONS", WIDTH/2.5, 50);
-				gc.fillText("JUMP   /  ", WIDTH/6, 100);
-				gc.fillText("LEFT   /  ", WIDTH/6, 150);
-				gc.fillText("RIGHT  /  ", WIDTH/6, 200);
-				gc.fillText("DOWN   /  ", WIDTH/6, 250);
+				gc.fillText("JUMP/UP:", WIDTH/6, 200);
+				gc.drawImage(w_key, WIDTH/6 + 60, 180, 30, 30);
+				gc.drawImage(up, WIDTH/6 + 100, 180, 30, 30);
+				
+				gc.fillText("LEFT:", WIDTH/6, 250);
+				gc.drawImage(a_key, WIDTH/6 + 60, 230, 30, 30);
+				gc.drawImage(left_key, WIDTH/6 + 100, 230, 30, 30);
+				
+				gc.fillText("RIGHT:", WIDTH/6, 300);
+				gc.drawImage(d_key, WIDTH/6 + 60, 280, 30, 30);
+				gc.drawImage(right, WIDTH/6 + 100, 280, 30, 30);
+				
+				gc.fillText("DOWN:", WIDTH/6, 350);
+				gc.drawImage(s_key, WIDTH/6 + 60, 330, 30, 30);
+				gc.drawImage(down, WIDTH/6 + 100, 330, 30, 30);
+				
+				gc.fillText("RUN:", WIDTH/6, 420);
+				gc.drawImage(shift, WIDTH/6 + 60, 400, 70, 30);
+				gc.drawImage(ctrl_key, WIDTH/6 + 140, 400, 30, 30);
+				
+				gc.fillText("POWERUP:", WIDTH/6, 470);
+				gc.drawImage(s_key, WIDTH/6 + 60, 450, 30, 30);
+				gc.drawImage(down, WIDTH/6 + 100, 450, 30, 30);
+				
+				gc.fillText("SHOOT:", WIDTH/6, 520);
+				gc.drawImage(space, WIDTH/6 + 60, 500, 160, 30);
+				
+				gc.setFont(fontSmall);
+				gc.fillText("Shoot the enemies and reach a high score!", WIDTH/2, 200);
+				gc.drawImage(tip1, WIDTH/2, 220, 278, 114);
+				
+				gc.setFont(fontSmall);
+				gc.fillText("Climb up enclosures to advance!", WIDTH/2, 360);
+				gc.drawImage(tip2, WIDTH/2, 380, 84, 236);
+				
+				gc.setFont(fontSmall);
+				gc.fillText("Lower time and lower bullets shot\nyields a higher score!", WIDTH/1.4, 300);
+				
+				gc.setFont(fontSmall);
+				gc.fillText("Long shots yield 1000 bonus points!", WIDTH/1.4, 370);
+				
+				gc.setFont(fontSmall);
+				gc.fillText("Collect invincibility and health powerups\nand activate them!", WIDTH/1.4, 440);
 				
 			}
 			

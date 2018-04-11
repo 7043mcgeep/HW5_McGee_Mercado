@@ -3,7 +3,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
-public class healthPack extends Sprite{
+public class Fuelcan extends Sprite{
+
 	public int tx;
 	public int ty;
 	public Color color;
@@ -11,25 +12,24 @@ public class healthPack extends Sprite{
 	public int dir = 0;
 	public Grid g;
 	
-	 Image image;
-	 //Image health = new Image("sprites/fuel.jpeg");
-	 boolean active=true, visible=true;
+	Image img;
+	Image fuel = new Image("sprites/gascan.png");
+	boolean active=true, visible=true;
 
-	public healthPack(Grid grid, int x, int y){	
+	public Fuelcan(Grid grid, int x, int y){	
 		tx = x;
 		ty = y;
 		g = grid;
-		color = Color.RED;
 	}
 	
 	public void render(GraphicsContext gc){
 		if(visible)
-			gc.drawImage(image, tx-Main.scroll_left, ty, 70, 70);
+			gc.drawImage(fuel, tx-Main.scroll_left, ty, 70, 70);
 	}
 	
 	public void update(){
 		if(active)
-			image = health;
+			img = fuel;
 	}
 
 	public void setPosition(int c, int d){

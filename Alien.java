@@ -46,9 +46,7 @@ public class Alien{
 	
 	public void render(GraphicsContext gc){
 		if(visible && !deadB) {
-			gc.setStroke(Color.AQUA);
 			gc.drawImage(img, ax-Main.scroll_left, ay-20, 60, 90);
-			gc.strokeRect(ax - Main.scroll_left, ay, width, height);
 		}
 		if(deadB) {
 			gc.drawImage(img, ax-Main.scroll_left, ay+10, 90, 90);
