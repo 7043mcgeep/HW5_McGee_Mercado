@@ -1,9 +1,9 @@
+import javafx.geometry.BoundingBox;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
 class Bullet extends Sprite {
 
-  public final double RADIUS = 4;
   double bx;
   double by;
   Grid grid;
@@ -16,16 +16,22 @@ class Bullet extends Sprite {
     	bounds();
       updatePosition();
       // If bullet exceeds bounds, suspend.
-      if (x > Main.WIDTH+Main.vleft)
+      if (x > Main.WIDTH+Main.scroll_left)
     	  suspend();
-      else if (x < Main.vleft)
+      else if (x < Main.scroll_left)
     	  suspend();
     }
   }  
 
+  public BoundingBox collisionBox(){
+	  return new BoundingBox(x-Main.scroll_left, y, 32, 32);
+  }
+	
   void render(GraphicsContext gc){
     if (visible){
-        gc.drawImage(laser,x-Main.vleft, y+37, 32, 32);
+    	System.out.println("SHOULD BE DRAWING ME IMAGE");
+    	gc.strokeRect(x-Main.scroll_left, y, 32, 32);
+        gc.drawImage(laser,x-Main.scroll_left, y, 32, 32);
     }
   }
   

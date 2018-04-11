@@ -15,19 +15,29 @@ import javafx.scene.transform.Affine;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.scene.media.MediaPlayer;
-import javafx.scene.media.AudioClip;
 import javafx.scene.text.Font;
 
 /*Authors: Patrick J. McGee
  		   Rene Mercado
+ 		   
+ 		   PJM: Added shooting and enemies 					4/10/18
+ 		   PJM: Added sounds and touched up levels/score	4/11/18
+ 		   PJM: Finalization and code clean up				4/11/18
+ 		   
 SPACE PERSON
-Dodge the asteroids and then fight intergalactic crime!
+You are Sam Gunn, Space Person. You are an ex-military warrior and political
+figure from the United States, circa 19XX.
+You are flying when you run out of fuel. Do what Sam Gunn does best and
+shoot your way out of the problem!
+------------------------------------------------------------------------------
+Dodge the asteroids and then fight intergalactic crime! Kill all aliens
+to get the fuel needed to get back home.
 */
 public class Main extends Application {
 	
 	final static int FPS = 30; // frames per second
 	final static int WIDTH = 1400;
-	final static int HEIGHT = 800;
+	final static int HEIGHT = 700;
 	
 	public static int waves = 0;
 	public boolean hit;
@@ -40,13 +50,13 @@ public class Main extends Application {
 	// Merging scroll
 	final static int BWIDTH = 1400;
 	final static int SCROLL = 700;  // Set edge limit for scrolling
-	public static int vleft = 0;	// Pixel coord of left edge of viewable
-									// area (used for scrolling)
+	public static int scroll_left = 0;	// Left edge of scrollable view
 	
 	HeroSprite hero;
 	Grid grid_1;
 	Image background, bk_forest, water;
 	Rock rocks[] = new Rock[5];
+	static Portal portal;
 	
 	public int			  ammo_ct = 0;			// Ammo count used in final score calculation.
 	public int            fuel_ct = 0;			// Each level beaten, user picks up fuel can, adds 33 to this constant.
@@ -62,8 +72,9 @@ public class Main extends Application {
 	// Timing variables
 	int base = (int) System.currentTimeMillis();
 	int currTime = 0;
-	
 	int wait2 = 0;
+	int wait_beep = 0;
+	int asteroid_once = 0;
 	
 	// Main menu flags
 	public static boolean main_menu = true;
@@ -73,11 +84,15 @@ public class Main extends Application {
 	public static boolean player_blink = false;			// True after collision w/ asteroid. Player goes into invincibility
 														// for a short time.
 	public static boolean beat_dodge = false;			// Crash landing alert flag
-
 	// Planet stage flags
 	public static boolean transition_planet = false;	// True after player dodges all asteroids in wave 3.
 														// Used to stop rendering/initializing new asteroids.
 	public static int     planet_stage = 0;				// 1 is the first stage. After the 3rd stage, player wins.
+	public static boolean open_portal = false;
+	public static boolean portal_hit = false;
+	public static int	  portal_once = 0;
+	public static int	  kill_all_lv1 = 0;
+	public static int	  kill_all_lv2 = 0;
 	public static int	  stop_ct = 0;
 	public static boolean left = false;
 	public static boolean transition_lv2 = false;
@@ -91,14 +106,17 @@ public class Main extends Application {
 	static Font fontSmaller = Font.loadFont(Main.class.getResource("PressStart2P.ttf").toExternalForm(), 12);
 	
 	// Audio clips: a very special thanks to: http://www.downloadfreesound.com/8-bit-sound-effects/
-	AudioClip alien_grunt, alien_death, engine, portal, shoot1, shoot2, win,
-	asteroid_hit, alert_crash;
+	AudioClip alien_grunt, alien_death, engine, portal_open, shoot1, portal_enter;
+	static AudioClip shoot2;
+	AudioClip win;
+	AudioClip asteroid_hit;
+	AudioClip alert_crash;
 	
 	// Media player for longer songs. Media2 used for layering background music in forest level.
 	MediaPlayer media, media2;
 	
 	// Longer songs
-	Media mars_s, lost, forest_s, forest_noise;
+	Media mars_s, lost, forest_s, forest_noise, asteroid_song;
 	
 	Asteroid[] asteroids = new Asteroid[50];
 	Bullet b1;
@@ -114,13 +132,29 @@ public class Main extends Application {
 	void initialize()
 	{
 		engine = new AudioClip(ClassLoader.getSystemResource("audio/engine.wav").toString());
-		engine.setVolume(0.3);
+		engine.setVolume(0.1);
 		asteroid_hit = new AudioClip(ClassLoader.getSystemResource("audio/asteroid_hit.wav").toString());
 		asteroid_hit.setVolume(0.4);
 		alert_crash = new AudioClip(ClassLoader.getSystemResource("audio/alert_crash.wav").toString());
 		alert_crash.setVolume(0.3);
+		shoot1 = new AudioClip(ClassLoader.getSystemResource("audio/shoot1.wav").toString());
+		shoot1.setVolume(0.4);
+		shoot2 = new AudioClip(ClassLoader.getSystemResource("audio/shoot2.wav").toString());
+		shoot2.setVolume(0.4);
 		
-		engine.setVolume(0.5);
+		alien_grunt = new AudioClip(ClassLoader.getSystemResource("audio/alien_grunt.wav").toString());
+		alien_grunt.setVolume(0.5);
+		
+		portal_open = new AudioClip(ClassLoader.getSystemResource("audio/portal.wav").toString());
+		portal_open.setVolume(0.5);
+		
+		asteroid_song = new Media(ClassLoader.getSystemResource("audio/asteroid_song.wav").toString());
+		
+		lost = new Media(ClassLoader.getSystemResource("audio/lost.mp3").toString());
+		
+		portal_enter = new AudioClip(ClassLoader.getSystemResource("audio/portal_enter.wav").toString());
+		portal_enter.setVolume(0.5);
+		portal_enter.setCycleCount(5);
 		
 		for (int i = 0; i < asteroids.length; i++)
 			asteroids[i] = new Asteroid();
@@ -151,8 +185,10 @@ public class Main extends Application {
 		
 	    if(planet_stage == 1 && !lv2 && !lv3) {
 	    	
-			lost = new Media(ClassLoader.getSystemResource("audio/lost.mp3").toString());
 	    	mars_s = new Media(ClassLoader.getSystemResource("audio/mars.mp3").toString());
+	    	
+	    	// Stop asteroid song
+	    	media.stop();
 	    	
 	    	// On stage 1, play mars song.
 	    	media = new MediaPlayer(mars_s);
@@ -220,13 +256,10 @@ public class Main extends Application {
 	void update() {
 		
 		if(planet_stage >= 1) {
-			
-			// Space Person's bullet sprite
-			pic[0].updateSprite();
 
-			if(initialized_lv1 && planet_stage == 1) {
-				
-			}
+			// Update all bullets
+			for(int j = 0; j < pic.length; j++)
+				pic[j].updateSprite();
 			
 			if(planet_stage == 1 && initialized_lv1) {
 				for(int i = 0; i < aliens1.length; i++) {
@@ -234,14 +267,24 @@ public class Main extends Application {
 					
 					for(int j = 0; j < pic.length; j++) {
 						
-						if(pic[j].bounds().intersects(aliens1[i].collisionBox()) && aliens1[i].active) {
-							if(pic[j].active) {
+						// Check if alien is hit by hero's bullet
+						if(b1.collisionBox().intersects(aliens1[i].collisionBox()) && aliens1[i].active) {
+							if(pic[0].active) {
 								aliens1[i].hits--;
-								pic[j].suspend();
+								pic[0].suspend();
 							}
-							if(aliens1[i].hits <= 0)
+							if(aliens1[i].hits <= 0) {
+								alien_grunt.play();
 								aliens1[i].suspend();
+								kill_all_lv1++;
+							}
+							if(kill_all_lv1 == aliens1.length) {
+								open_portal = true;
+								portal_open.play();
+							}
 						}
+						if(hero.collisionBox().intersects(portal.collisionBox()))
+							portal_hit = true;
 					}
 					
 				}
@@ -252,11 +295,12 @@ public class Main extends Application {
 					aliens2[i].update();
 					
 					for(int j = 0; j < pic.length; j++) {
-						
-						if(pic[j].bounds().intersects(aliens2[i].collisionBox()) && aliens2[i].active) {
-							if(pic[j].active) {
+
+						// Check if alien lv2 is hit by hero's bullet
+						if(b1.collisionBox().intersects(aliens2[i].collisionBox()) && aliens2[i].active) {
+							if(pic[0].active) {
 								aliens2[i].hits--;
-								pic[j].suspend();
+								pic[0].suspend();
 							}
 							if(aliens2[i].hits <= 0)
 								aliens2[i].suspend();
@@ -344,24 +388,24 @@ public class Main extends Application {
 					case K:
 						if (!b1.isActive() && hero.dir == 1) {
 							hero.fireBulletLeft();
-							//boom.play();
+							shoot1.play();
 						}else if (!b1.isActive() && hero.dir == 2) {
 							hero.fireBullet();
-							//boom.play();
+							shoot1.play();
 						}else if (!b1.isActive() && hero.dir == 3) {
-							//boom.stop();
+							shoot1.stop();
 						}else if(!b1.isActive() && left && hero.spr == 1) {
 							hero.fireBulletLeft();
-							//boom.play();
+							shoot1.play();
 						}else if(!b1.isActive() && hero.spr == 1){
 							hero.fireBullet();
 							//boom.play();
 						}else if(!b1.isActive() && left) {
 							hero.fireBulletLeft();
-							//boom.play();
+							shoot1.play();
 						}else if(!b1.isActive()){
 							hero.fireBullet();
-							//boom.play();
+							shoot1.play();
 						}
 						break;
 					case X:
@@ -377,6 +421,7 @@ public class Main extends Application {
 						if(enter < 2 && main_menu){
 							base = (int) System.currentTimeMillis();
 							asteroid_stage = 1;
+							beat_dodge = true;
 							main_menu = false;
 							enter++;
 						}
@@ -429,16 +474,16 @@ public class Main extends Application {
 	
 	void checkScrolling(){
 		// Test if hero is at edge of view window and scroll appropriately
-		if (hero.locx() < (vleft+SCROLL)){
+		if (hero.locx() < (scroll_left+SCROLL)){
 			
-			vleft = hero.locx()-SCROLL;
-			if (vleft < 0)
-				vleft = 0;
+			scroll_left = hero.locx()-SCROLL;
+			if (scroll_left < 0)
+				scroll_left = 0;
 		}
-		if ((hero.locx() + hero.width()) > (vleft+WIDTH-SCROLL)){
-			vleft = hero.locx()+hero.width()-WIDTH+SCROLL;
-			if (vleft > (grid_1.width()-WIDTH))
-				vleft = grid_1.width()-WIDTH;
+		if ((hero.locx() + hero.width()) > (scroll_left+WIDTH-SCROLL)){
+			scroll_left = hero.locx()+hero.width()-WIDTH+SCROLL;
+			if (scroll_left > (grid_1.width()-WIDTH))
+				scroll_left = grid_1.width()-WIDTH;
 		}
 	}
 	
@@ -493,7 +538,13 @@ public class Main extends Application {
 				
 				// Do this once to prevent scary Smash Mouth echoing... :
 				if(stop_ct < 1) {
+					
+					// Stop both audio tracks
 					media.stop();
+					
+					if(planet_stage == 2)
+						media2.stop();
+					
 					media = new MediaPlayer(lost);
 					media.play();
 					media.setVolume(0.7);
@@ -511,9 +562,16 @@ public class Main extends Application {
 			
 			else if(asteroid_stage == 1 && (planet_stage < 1)) {
 					
-					//currTime = Timer.getTimeSec(base);
-					
-				    engine.play();
+					// Engine noise is very short... must play continuously to sound correct
+					engine.play();
+				    // Make sure that certain audio clips are only being played one time to avoid overlap
+				    if(asteroid_once < 1) {
+				    	media = new MediaPlayer(asteroid_song);
+						media.setCycleCount(25);
+						media.play();
+						media.setVolume(0.4);
+				    }
+				    asteroid_once++;
 				
 					// Black background
 					gc.setFill(Color.BLACK);
@@ -549,11 +607,13 @@ public class Main extends Application {
 							Player.landing_sequence = true;		// Advance player
 							gc.setFill(Color.YELLOW);
 							gc.setFont(font);
-							if(wait < 260) {
+							if(wait < 160) {
 								wait++;
 								if(currTime % 2 == 0) {
-									alert_crash.play();
+									if(wait_beep % 10 == 0)
+										alert_crash.play();
 									gc.fillText("CRASH LANDING.\nBRACE FOR IMPACT.", WIDTH/3, HEIGHT/2);
+									wait_beep++;
 								}
 							}
 							else {
@@ -594,7 +654,7 @@ public class Main extends Application {
 			
 			else if(planet_stage == 1) {
 				
-				int cut = (vleft/2) % BWIDTH;
+				int cut = (scroll_left/2) % BWIDTH;
 				gc.drawImage(background, -cut, 0);
 				gc.drawImage(background, BWIDTH-cut, 0);
 				
@@ -603,23 +663,32 @@ public class Main extends Application {
 				
 				grid_1.render(gc);
 				hero.render(gc);
-				pic[0].render(gc);
+				
+				// Render the pictures (bullets)
+				for(int i = 0; i < pic.length; i++)
+					pic[i].render(gc);
 				
 				
-				for(int i = 0; i < 7; i++) {
+				for(int i = 0; i < aliens1.length; i++) {
 					aliens1[i].render(gc);
+				}
+				
+				if(open_portal) {
+					System.out.println("\n\nOPEN PORTALLLLL!!!!!!!!\n\n");
+					portal.render(gc);
 				}
 			}
 			
 			else if(wait_a_sec) {
 				
-				if(wait < 40) {
+				if(wait < 80) {
+					if(portal_once < 1) {
+						portal_enter.play();
+					}
 					wait++;
-					System.out.println("++++++++++++++++++++ " + wait);
-					if(currTime % 2 == 0)
-						gc.fillText("WELCOME TO THE JUNGLE", WIDTH/3, HEIGHT/2);
 				}
 				else {
+					portal_enter.stop();
 					planet_stage = 2;
 					initialize();
 					wait_a_sec = false;
@@ -628,7 +697,7 @@ public class Main extends Application {
 			
 			if(planet_stage == 2) {
 				
-				int cut = (vleft/2) % BWIDTH;
+				int cut = (scroll_left/2) % BWIDTH;
 				gc.drawImage(bk_forest, -cut, 0);
 				gc.drawImage(bk_forest, BWIDTH-cut, 0);
 				
@@ -637,7 +706,10 @@ public class Main extends Application {
 				
 				grid_1.render(gc);
 				hero.render(gc);
-				pic[0].render(gc);	
+				
+				// Render the pictures (bullets)
+				for(int i = 0; i < pic.length; i++)
+					pic[i].render(gc);
 				
 				for(int i = 0; i < aliens2.length; i++) {
 					aliens2[i].render(gc);

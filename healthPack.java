@@ -24,7 +24,7 @@ public class healthPack extends Sprite{
 	
 	public void render(GraphicsContext gc){
 		if(visible)
-			gc.drawImage(image, tx-Main.vleft, ty, 70, 70);
+			gc.drawImage(image, tx-Main.scroll_left, ty, 70, 70);
 	}
 	
 	public void update(){

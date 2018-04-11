@@ -140,17 +140,17 @@ class Grid
 	public void render(GraphicsContext gc){
 		gc.setFill(Color.BLUE);
 		// Just draw visible blocks
-		int col1 = (Main.vleft)/CELLSIZE;
-		int col2 = (Main.vleft + Main.WIDTH)/CELLSIZE;
+		int col1 = (Main.scroll_left)/CELLSIZE;
+		int col2 = (Main.scroll_left + Main.WIDTH)/CELLSIZE;
 		if (col2 >= MWIDTH)
 			col2 = MWIDTH-1;
 		for (int row = 0; row < MHEIGHT; row++)
 		 for (int col = col1; col <= col2; col++)
 			if (map[col][row] == 1) {
 				if(Main.planet_stage == 1)
-					gc.drawImage(block, col*CELLSIZE-Main.vleft, row*CELLSIZE, CELLSIZE, CELLSIZE);
+					gc.drawImage(block, col*CELLSIZE-Main.scroll_left, row*CELLSIZE, CELLSIZE, CELLSIZE);
 				if(Main.planet_stage == 2)
-					gc.drawImage(grass, col*CELLSIZE-Main.vleft, row*CELLSIZE, CELLSIZE, CELLSIZE);
+					gc.drawImage(grass, col*CELLSIZE-Main.scroll_left, row*CELLSIZE, CELLSIZE, CELLSIZE);
 			}
 	}
 }

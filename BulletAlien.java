@@ -1,9 +1,9 @@
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 
 public class BulletAlien extends Sprite{
 
-	  public final double RADIUS = 4;
 	  double bx;
 	  double by;
 	  Grid grid;
@@ -16,16 +16,17 @@ public class BulletAlien extends Sprite{
 	    	bounds();
 	      updatePosition();
 	      // If bullet exceeds bounds, suspend.
-	      if (x > Main.WIDTH+Main.vleft)
+	      if (x > Main.WIDTH+Main.scroll_left)
 	    	  suspend();
-	      else if (x < Main.vleft)
+	      else if (x < Main.scroll_left)
 	    	  suspend();
 	    }
 	  }  
 
 	  void render(GraphicsContext gc){
 	    if (visible){
-	        gc.drawImage(laser,x-Main.vleft, y+37, 32, 32);
+	    	gc.setFill(Color.ALICEBLUE);
+	        gc.drawImage(laser,x-Main.scroll_left, y+37, 32, 32);
 	    }
 	  }
 	  

@@ -104,6 +104,7 @@ public class Levels {
 		rocks[2] = new Rock(100,300,100,40);
 		rocks[3] = new Rock(1000,200,120,30);
 		rocks[4] = new Rock(1200,250,120,0);
+		Main.portal = new Portal(grid_1, 7500, 499);
 	}
 	
 	public static void setLevel2(Grid grid_1) {

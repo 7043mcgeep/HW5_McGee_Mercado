@@ -36,6 +36,8 @@ class HeroSprite
 	Image jump_l = new Image("sprites/jump_l.gif");
     Image run_r = new Image("sprites/run_r.gif");
 	Image run_l = new Image("sprites/run_l.gif");
+	
+	Image illusion = new Image("sprites/swirl.gif");
 	 
 	public HeroSprite(Grid grid, int x, int y, Bullet b){
 		// locx, locy = top left corner of sprite
@@ -113,13 +115,13 @@ class HeroSprite
 	
 	public void fireBullet(){
 	     bullet.setPosition(locx+20, locy);
-	     bullet.setVelocity(20, 0);
+	     bullet.setVelocity(12, 0);
 	     bullet.resume();
 	   }
 	
 	public void fireBulletLeft(){
 	     bullet.setPosition(locx, locy);
-	     bullet.setVelocity(-20, 0);
+	     bullet.setVelocity(-12, 0);
 	     bullet.resume();
 	   }
 	
@@ -134,7 +136,7 @@ class HeroSprite
 		
 		System.out.println("locx: " + locx + " locy: " + locy + " planet_stage= " + Main.planet_stage);
 		if(Main.planet_stage == 1) {
-			if(locx >= 7500) {
+			if(Main.portal_hit) {
 				Main.planet_stage = 2;
 				Main.wait_a_sec = true;
 				Main.lv2 = true;
@@ -157,9 +159,7 @@ class HeroSprite
 		if (dx != 0)
 			locx += dx;
 		if (state == JUMP){
-			// Figure out how far we can move (at our
-			// current speed) without running into
-			// something
+			
 			if (dy > -200) {
 				if(locy > 580) { Main.game_over = true; Main.planet_stage = 0;}
 				dy = g.moveDown(collisionBox(), dy);
@@ -167,17 +167,14 @@ class HeroSprite
 			else if (dy < 0){
 				dy = -g.moveUp(collisionBox(), -dy);
 			}
-			// Adjust our position
+			// Adjust position
 			if (dy != 0)
 				locy += dy;
-			//
-			// Next we adjust dy to allow for the force
-			// (acceleration) of gravity
-			//
+			
+			// Adjust y axis gravity
 			dy += GRAVITY;
-			//
-			// Also, check if we're on the ground (or at the
-			// top of the screen)
+		
+			// If we're on the ground, we're standing.
 			if (g.onGround(collisionBox())){
 				dy = 0;
 				state = STAND;
@@ -192,14 +189,21 @@ class HeroSprite
 	}
 	
 	public void render(GraphicsContext gc){
-		gc.drawImage(img, locx-Main.vleft, locy - 20, 60, 90);
+		if(Main.wait_a_sec) {
+			System.out.println("WAAAAAAAAAAAAAAAAAAAAAAAVESSSSSSSSSSSSSSSSSSSSSSS");
+			gc.drawImage(illusion, locx-Main.scroll_left - Main.WIDTH/1.4, locy - Main.HEIGHT,  Main.WIDTH*1.5, Main.HEIGHT*2);
+			gc.setFill(Color.GREEN);
+			gc.setFont(Main.font);
+			gc.fillText("WELCOME TO THE JUNGLE", locx-Main.scroll_left - 20, locy - 20);
+		}
+		gc.drawImage(img, locx-Main.scroll_left, locy - 20, 60, 90);
 		gc.setStroke(Color.CYAN);
-		gc.strokeRect(locx-Main.vleft, locy-20, 60, 90);
+		gc.strokeRect(locx-Main.scroll_left, locy-20, 60, 90);
 		if(powerup) powerup_t++;
 		if(powerup && powerup_t < 70) {
 			gc.setFill(Color.RED);
 			gc.setFont(Main.font);
-			gc.fillText("POWERUP!", locx-Main.vleft - 20, locy - 20);
+			gc.fillText("POWERUP!", locx-Main.scroll_left - 20, locy - 20);
 		}
 		else if(powerup_t >= 70) {
 			powerup = false;
