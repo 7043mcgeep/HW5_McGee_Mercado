@@ -89,13 +89,13 @@ public class Alien{
 
 	public void shoot(){
 	     bullet.setPosition(ax+20, ay);
-	     bullet.setVelocity(8, 0);
+	     bullet.setVelocity(13, 0);
 	     bullet.resume();
 	   }
 	
 	public void shoot_l(){
 	     bullet.setPosition(ax, ay);
-	     bullet.setVelocity(-8, 0);
+	     bullet.setVelocity(-13, 0);
 	     bullet.resume();
 	   }
 	

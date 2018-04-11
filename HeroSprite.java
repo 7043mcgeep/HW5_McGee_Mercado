@@ -108,20 +108,16 @@ class HeroSprite
 		// Then do the moving
 		updatePosition();
 	}
-
-	public BoundingBox collisionBox(){
-		return new BoundingBox(locx+10, locy-10, width-10, height+10);
-	}
 	
 	public void fireBullet(){
 	     bullet.setPosition(locx+20, locy);
-	     bullet.setVelocity(12, 0);
+	     bullet.setVelocity(18, 0);
 	     bullet.resume();
 	   }
 	
 	public void fireBulletLeft(){
 	     bullet.setPosition(locx, locy);
-	     bullet.setVelocity(-12, 0);
+	     bullet.setVelocity(-18, 0);
 	     bullet.resume();
 	   }
 	
@@ -188,17 +184,19 @@ class HeroSprite
 				state = JUMP;
 	}
 	
+	public BoundingBox collisionBox(){
+		return new BoundingBox(locx+7, locy-13, width-6, height+13);
+	}
+	
 	public void render(GraphicsContext gc){
 		if(Main.wait_a_sec) {
 			System.out.println("WAAAAAAAAAAAAAAAAAAAAAAAVESSSSSSSSSSSSSSSSSSSSSSS");
 			gc.drawImage(illusion, locx-Main.scroll_left - Main.WIDTH/1.4, locy - Main.HEIGHT,  Main.WIDTH*1.5, Main.HEIGHT*2);
 			gc.setFill(Color.GREEN);
 			gc.setFont(Main.font);
-			gc.fillText("WELCOME TO THE JUNGLE", locx-Main.scroll_left - 20, locy - 20);
+			gc.fillText("WELCOME TO\n  THE JUNGLE", locx-Main.scroll_left-40, locy - 30);
 		}
 		gc.drawImage(img, locx-Main.scroll_left, locy - 20, 60, 90);
-		gc.setStroke(Color.CYAN);
-		gc.strokeRect(locx-Main.scroll_left, locy-20, 60, 90);
 		if(powerup) powerup_t++;
 		if(powerup && powerup_t < 70) {
 			gc.setFill(Color.RED);

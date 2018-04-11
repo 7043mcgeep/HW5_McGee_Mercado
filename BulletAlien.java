@@ -1,3 +1,4 @@
+import javafx.geometry.BoundingBox;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -22,11 +23,15 @@ public class BulletAlien extends Sprite{
 	    	  suspend();
 	    }
 	  }  
+	  
+	  public BoundingBox collisionBox(){
+		  return new BoundingBox(x-Main.scroll_left, y+37, 32, 32);
+	  }
 
 	  void render(GraphicsContext gc){
 	    if (visible){
-	    	gc.setFill(Color.ALICEBLUE);
-	        gc.drawImage(laser,x-Main.scroll_left, y+37, 32, 32);
+	    	gc.setFill(Color.RED);
+	        gc.drawImage(laser,x-Main.scroll_left, y+20, 32, 32);
 	    }
 	  }
 	  

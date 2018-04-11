@@ -78,6 +78,7 @@ public class Main extends Application {
 	
 	// Main menu flags
 	public static boolean main_menu = true;
+	public static boolean instructions = false;
 	
 	// Asteroid stage flags
 	public static int asteroid_stage = 0;				// 1 upon game start (first stage)
@@ -106,7 +107,7 @@ public class Main extends Application {
 	static Font fontSmaller = Font.loadFont(Main.class.getResource("PressStart2P.ttf").toExternalForm(), 12);
 	
 	// Audio clips: a very special thanks to: http://www.downloadfreesound.com/8-bit-sound-effects/
-	AudioClip alien_grunt, alien_death, engine, portal_open, shoot1, portal_enter;
+	AudioClip alien_grunt, alien_death, engine, portal_open, shoot1, portal_enter, hero_grunt, asteroid_death;;
 	static AudioClip shoot2;
 	AudioClip win;
 	AudioClip asteroid_hit;
@@ -141,12 +142,14 @@ public class Main extends Application {
 		shoot1.setVolume(0.4);
 		shoot2 = new AudioClip(ClassLoader.getSystemResource("audio/shoot2.wav").toString());
 		shoot2.setVolume(0.4);
-		
+		hero_grunt = new AudioClip(ClassLoader.getSystemResource("audio/hero_grunt.wav").toString());
+		shoot2.setVolume(0.4);
 		alien_grunt = new AudioClip(ClassLoader.getSystemResource("audio/alien_grunt.wav").toString());
 		alien_grunt.setVolume(0.5);
-		
 		portal_open = new AudioClip(ClassLoader.getSystemResource("audio/portal.wav").toString());
 		portal_open.setVolume(0.5);
+		asteroid_death = new AudioClip(ClassLoader.getSystemResource("audio/asteroid_death.mp3").toString());
+		asteroid_death.setVolume(0.5);
 		
 		asteroid_song = new Media(ClassLoader.getSystemResource("audio/asteroid_song.wav").toString());
 		
@@ -262,10 +265,26 @@ public class Main extends Application {
 				pic[j].updateSprite();
 			
 			if(planet_stage == 1 && initialized_lv1) {
+				
 				for(int i = 0; i < aliens1.length; i++) {
 					aliens1[i].update();
 					
 					for(int j = 0; j < pic.length; j++) {
+						
+						for(int k = 1; k < pic.length; k++){
+							if(pic[k].bounds().intersects(hero.collisionBox())) {
+								if(pic[k].active) {
+									hero_grunt.play();
+									lives.lives--;
+									pic[k].suspend();
+								}
+								if(lives.lives == 0) {
+									hero_grunt.play();
+									pic[0].suspend();
+									game_over = true;
+								}
+							}
+						}
 						
 						// Check if alien is hit by hero's bullet
 						if(b1.collisionBox().intersects(aliens1[i].collisionBox()) && aliens1[i].active) {
@@ -283,9 +302,35 @@ public class Main extends Application {
 								portal_open.play();
 							}
 						}
+						
 						if(hero.collisionBox().intersects(portal.collisionBox()))
 							portal_hit = true;
 					}
+					
+						/*// Check if hero is hit by alien bullets
+						if(pic[1].bounds().intersects(hero.collisionBox()) ||
+										pic[2].bounds().intersects(hero.collisionBox()) ||
+										pic[3].bounds().intersects(hero.collisionBox()) ||
+										b5.collisionBox().intersects(hero.collisionBox()) ||
+										b6.collisionBox().intersects(hero.collisionBox()) ||
+										b7.collisionBox().intersects(hero.collisionBox()) ||
+										b8.collisionBox().intersects(hero.collisionBox())
+										&& pic[0].active){ */ 
+//					for(int k = 1; k < 6; k++) {
+//						if(b2.collisionBox().intersects(hero.collisionBox())) {
+//							if(pic[0].active) {
+//								hero_grunt.play();
+//								lives.lives--;
+//								pic[0].suspend();
+//							}
+//							if(lives.lives == 0) {
+//								hero_grunt.play();
+//								pic[0].suspend();
+//								game_over = true;
+//							}
+//						}
+//					}
+					
 					
 				}
 			}
@@ -325,7 +370,10 @@ public class Main extends Application {
 			if (collided(k) && asteroids[k].hit == false && player_blink == false && asteroids[k].fullPass == false) {		// Check collision (w/ invincibility frame)
 				asteroid_hit.play();
 				player_blink = true;
-				lives.lives -= 1;
+				lives.lives--;
+				if(lives.lives <= 0) {
+					asteroid_death.play();
+				}
 				asteroids[k].hit = true;
 			}
 			
@@ -424,6 +472,12 @@ public class Main extends Application {
 							beat_dodge = true;
 							main_menu = false;
 							enter++;
+						}
+						else break;
+					case I:
+						if(main_menu){
+							instructions = true;
+							main_menu = false;
 						}
 						else break;
 					default:
@@ -531,6 +585,29 @@ public class Main extends Application {
 					gc.fillText("PRESS 'ENTER' TO PLAY", WIDTH/3.4, 480);
 					gc.fillText("'I' FOR INSTRUCTIONS", WIDTH/3.4, 520);
 					gc.fillText("'C' FOR CREDITS", WIDTH/3.4, 560);
+				
+			}
+			
+			else if(instructions) {
+				
+				// Do this once to prevent scary Smash Mouth echoing... :
+				if(stop_ct < 1) {
+					
+					
+					
+				}
+				
+				// Black background
+				gc.setFill(Color.BLACK);
+				gc.fillRect(0, 0, WIDTH, HEIGHT);
+				
+				gc.setFont(fontSmall);
+				gc.setFill(Color.WHITE);
+				gc.fillText("INSTRUCTIONS", WIDTH/2.5, 50);
+				gc.fillText("JUMP   /  ", WIDTH/6, 100);
+				gc.fillText("LEFT   /  ", WIDTH/6, 150);
+				gc.fillText("RIGHT  /  ", WIDTH/6, 200);
+				gc.fillText("DOWN   /  ", WIDTH/6, 250);
 				
 			}
 			
@@ -667,7 +744,6 @@ public class Main extends Application {
 				// Render the pictures (bullets)
 				for(int i = 0; i < pic.length; i++)
 					pic[i].render(gc);
-				
 				
 				for(int i = 0; i < aliens1.length; i++) {
 					aliens1[i].render(gc);

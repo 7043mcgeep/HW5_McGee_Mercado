@@ -30,8 +30,7 @@ class Bullet extends Sprite {
   void render(GraphicsContext gc){
     if (visible){
     	System.out.println("SHOULD BE DRAWING ME IMAGE");
-    	gc.strokeRect(x-Main.scroll_left, y, 32, 32);
-        gc.drawImage(laser,x-Main.scroll_left, y, 32, 32);
+        gc.drawImage(laser,x-Main.scroll_left, y+6, 32, 32);
     }
   }
   
