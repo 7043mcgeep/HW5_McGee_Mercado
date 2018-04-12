@@ -16,6 +16,7 @@ class HeroSprite
 	public boolean powerup = false;
 	public int powerup_t = 0;
 	public int longhit_t = 0;
+	public int render_hint = 0;
 	
 	public Bullet bullet;
 	public Color color;
@@ -192,13 +193,18 @@ class HeroSprite
 	}
 	
 	public void render(GraphicsContext gc){
+		
+		if(Main.planet_stage == 1) {
+			
+		}
+		
 		if(Main.render_fuel)
 			Main.wait_a_sec = false;
 		if(Main.wait_a_sec) {
 			gc.drawImage(illusion, locx-Main.scroll_left - Main.WIDTH/1.4, locy - Main.HEIGHT,  Main.WIDTH*1.5, Main.HEIGHT*2);
 			gc.setFill(Color.GREEN);
 			gc.setFont(Main.font);
-			gc.fillText("WELCOME TO\n  THE JUNGLE", locx-Main.scroll_left-40, locy - 30);
+			gc.fillText("WELCOME TO\n  THE JUNGLE", locx-Main.scroll_left-70, locy - 70);
 		}
 		gc.drawImage(img, locx-Main.scroll_left, locy - 20, 60, 90);
 		if(powerup) powerup_t++;
@@ -221,6 +227,38 @@ class HeroSprite
 		else if(longhit_t >= 70) {
 			Main.render_longhit = false;
 			longhit_t = 0;
+		}
+		if(Main.kill_all_lv2 == 8) {
+			
+			if(render_hint < 70 && locx < 8000) {
+				gc.setFill(Color.WHITE);
+				gc.setFont(Main.font);
+				gc.fillText("I need to find fuel!\n  Maybe it's this way! -->", locx-Main.scroll_left - 250, locy - 150);
+			}
+			else if(render_hint >= 70) {
+				render_hint = 0;
+			}
+			
+			if(locx >= 8100 && locx < 8600) {
+				if(render_hint < 100) {
+					gc.setFill(Color.WHITE);
+					gc.setFont(Main.font);
+					gc.fillText("Surely this planet must\nhave fuel somewhere...", locx-Main.scroll_left - 250, locy - 150);
+				}
+				else if(render_hint >= 100) {
+					render_hint = 0;
+				}
+			}
+			else if(locx >= 8900 && !Main.ending_sequence) {
+				if(render_hint < 100) {
+					gc.setFill(Color.WHITE);
+					gc.setFont(Main.font);
+					gc.fillText("Over here!\nI knew they would have it!", locx-Main.scroll_left - 250, locy - 150);
+				}
+				else if(render_hint >= 100) {
+					render_hint = 0;
+				}
+			}
 		}
 	}
 }

@@ -743,7 +743,6 @@ public class Main extends Application {
 					
 					// Stop both audio tracks
 					media.stop();
-					media2.stop();
 					
 					if(planet_stage == 2)
 						media2.stop();
@@ -962,14 +961,14 @@ public class Main extends Application {
 					gc.fillText("   SCORE:\t" + score.score, WIDTH/6, 200);
 					
 					gc.fillText("   - BULLETS FIRED =\t" + ammo_ct, WIDTH/6, 250);
-					gc.fillText("   - TIME TAKEN =\t" + score_time + " SECONDS", WIDTH/6, 300);
+					gc.fillText("   - TIME TAKEN    =    " + score_time + " SEC", WIDTH/6, 300);
 					
 					int final_score = score.score - ammo_ct - score_time;
 					
 					gc.fillText("   FINAL SCORE:\t" + final_score, WIDTH/6, 350);
 					
 					// Reset variables and ask for main menu screen
-					gc.fillText("PRESS 'M' FOR MAIN MENU", WIDTH/6, HEIGHT-50);
+					gc.fillText("   PRESS 'M' FOR MAIN MENU", WIDTH/6, HEIGHT-70);
 				}
 				
 			}

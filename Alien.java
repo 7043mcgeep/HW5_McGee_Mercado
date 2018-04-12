@@ -15,8 +15,11 @@ public class Alien{
 	public int dir = 0;
 	public Grid g;
 	public int hits;
+	public boolean fired = false;
 	
 	boolean active=true, visible=true, dead=false;
+	public int alien_talk = 0;
+	public int alien_wait = 0;
 	
 	 Image img;
 	 // Level 1 aliens
@@ -47,6 +50,26 @@ public class Alien{
 	public void render(GraphicsContext gc){
 		if(visible && !dead) {
 			gc.drawImage(img, ax-Main.scroll_left, ay-20, 60, 90);
+			
+				if(alien_talk < 70) {
+					gc.setFill(Color.RED);
+					gc.setFont(Main.fontSmaller);
+					gc.fillText("Die, Earthling!", ax-Main.scroll_left - 20, ay - 20);
+					alien_talk++;
+				}
+				else if(alien_talk >= 70) {
+					alien_talk = 0;
+				}
+				
+				if(alien_talk < 40) {
+					gc.setFill(Color.BLUE);
+					gc.setFont(Main.fontSmaller);
+					gc.fillText("!@#*&!", ax-Main.scroll_left - 20, ay - 20);
+					alien_talk++;
+				}
+				else if(alien_talk >= 40) {
+					alien_talk = 0;
+				}
 		}
 		if(dead) {
 			gc.drawImage(r_dead, ax-Main.scroll_left, ay-15, 90, 90);
@@ -64,9 +87,11 @@ public class Alien{
 				//System.out.println("ct = " + ct + " timer = " + timer);
 				if(ct == timer) {
 					shoot_l();
+					fired = true;
 					if(HeroSprite.locx > ax-700);
 						Main.shoot2.play();
 					ct = 0;
+					fired = false;
 				}
 			}
 			else if (HeroSprite.locx > ax) {
@@ -77,9 +102,11 @@ public class Alien{
 				//System.out.println("ct = " + ct + " timer = " + timer);
 				if(ct == timer) {
 					shoot();
+					fired = true;
 					if(HeroSprite.locx < ax+700)
 						Main.shoot2.play();
 					ct = 0;
+					fired = false;
 					}
 			}
 			else 
