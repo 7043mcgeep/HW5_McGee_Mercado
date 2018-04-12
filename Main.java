@@ -61,7 +61,7 @@ public class Main extends Application {
 	static Portal portal;
 	static Fuelcan fuelcan;
 	
-	public int			  ammo_ct = 0;			// Ammo count used in final score calculation.
+	public static int     ammo_ct = 0;			// Ammo count used in final score calculation.
 	public int            fuel_ct = 0;			// Each level beaten, user picks up fuel can, adds 33 to this constant.
 												// At end of game, user has 100% fuel and is able to get home.
 	public static boolean debug_mode = false;
@@ -78,6 +78,9 @@ public class Main extends Application {
 	int wait2 = 0;
 	int wait_beep = 0;
 	int asteroid_once = 0;
+	
+	// USed in score calculation (to subtract time taken)
+	int score_time = 0;
 	
 	// Main menu flags
 	public static boolean main_menu = true;
@@ -282,7 +285,66 @@ public class Main extends Application {
 	int u_base = (int) System.currentTimeMillis();
 	void update() {
 		
+		// Only update these variables on asteroid stage to avoid resource leak and loss of game sense
+		if(asteroid_stage == 1) {
+			p.move();
+			
+			for (int k = 0; k < asteroids.length; k++) {
+				
+				if(!ending_sequence) {
+					// Check if player is hit by asteroid k
+					if (collided(k) && asteroids[k].hit == false && player_blink == false && asteroids[k].fullPass == false) {		// Check collision (w/ invincibility frame)
+						asteroid_hit.play();
+						player_blink = true;
+						lives.lives--;
+						if(lives.lives <= 0) {
+							asteroid_death.play();
+						}
+						asteroids[k].hit = true;
+					}
+				}
+				
+				// Asteroid k leaves the screen on the left side
+				if((asteroids[k].x + asteroids[k].w/2 < 50) && (passCount < 50) && (!asteroids[k].fullPass) && !Player.landing_sequence){
+					score.score += 100;
+					asteroids[k].fullPass = true;
+					passCount++;
+				}
+				
+			}
+			
+
+			// When the same asteroid comes back again, it will still have the false attribute.
+			// Reset it here.
+			if(passCount == 50) {
+				for (int k = 0; k < asteroids.length; k++) {
+					asteroids[k].hit = false;
+					asteroids[k].fullPass = false;
+				}
+				
+				if(waves < 4) {
+					waves++;
+					System.out.println(waves);
+					
+					if(waves == 3)
+						beat_dodge = true;
+				}
+				
+				passCount = 0;
+			}
+					
+			if(planet_stage < 1 && !main_menu && !ending_sequence) {
+				for (Asteroid b: asteroids)
+					b.move();
+			}
+		}
+		
 		if(planet_stage >= 1) {
+			
+			// Update space person and cool rocks
+			hero.update();
+			for (int i = 0; i < rocks.length; i++)
+				rocks[i].update();
 
 			// Update all bullets
 			for(int j = 0; j < pic.length; j++)
@@ -337,6 +399,7 @@ public class Main extends Application {
 						if(b1.collisionBox().intersects(aliens1[i].collisionBox()) && aliens1[i].active) {
 							if(pic[0].active) {
 								aliens1[i].hits--;
+								score.score += 100;
 								pic[0].suspend();
 							}
 							if(aliens1[i].hits <= 0) {
@@ -370,7 +433,7 @@ public class Main extends Application {
 							if(pic[0].active) {
 								aliens2[i].hits--;
 								pic[0].suspend();
-								//kill_all_lv2++;
+								score.score += 100;
 							}
 							if(aliens2[i].hits <= 0) {
 								alien_grunt.play();
@@ -389,63 +452,13 @@ public class Main extends Application {
 					
 					if(hero.collisionBox().intersects(fuelcan.collisionBox())) {
 						ending_sequence = true;
-						planet_stage = 0;
+						planet_stage = 3;
 					}
 
 				}
 			}
-			
-			hero.update();
-			for (int i = 0; i < rocks.length; i++)
-				rocks[i].update();
 
 			checkScrolling();
-		}
-		
-		p.move();
-		
-		for (int k = 0; k < asteroids.length; k++) {
-			// Check if player is hit by asteroid k
-			if (collided(k) && asteroids[k].hit == false && player_blink == false && asteroids[k].fullPass == false) {		// Check collision (w/ invincibility frame)
-				asteroid_hit.play();
-				player_blink = true;
-				lives.lives--;
-				if(lives.lives <= 0) {
-					asteroid_death.play();
-				}
-				asteroids[k].hit = true;
-			}
-			
-			// Asteroid k leaves the screen on the left side
-			if((asteroids[k].x + asteroids[k].w/2 < 50) && (passCount < 50) && (!asteroids[k].fullPass) && !Player.landing_sequence){
-				score.score += 100;
-				asteroids[k].fullPass = true;
-				passCount++;
-			}
-			
-		}
-		
-
-		// When the same asteroid comes back again, it will still have the false attribute.
-		// Reset it here.
-		if(passCount == 50) {
-			for (int k = 0; k < asteroids.length; k++) {
-				asteroids[k].hit = false;
-				asteroids[k].fullPass = false;
-			}
-			
-			if(waves < 4)
-				waves++;
-			
-			if(waves == 3)
-				beat_dodge = true;
-			
-			passCount = 0;
-		}
-				
-		if(planet_stage < 1 && !main_menu) {
-			for (Asteroid b: asteroids)
-				b.move();
 		}
 	}
 	
@@ -508,7 +521,7 @@ public class Main extends Application {
 						if(enter < 2 && main_menu){
 							base = (int) System.currentTimeMillis();
 							asteroid_stage = 1;
-							beat_dodge = true;
+							//beat_dodge = true;
 							main_menu = false;
 							enter++;
 							break;
@@ -523,8 +536,12 @@ public class Main extends Application {
 						else break;
 					case M:
 						if(instructions && !main_menu) {
-							System.out.println("M");
 							instructions = false;
+							main_menu = true;
+							break;
+						}
+						else if(ending_sequence) {
+							ending_sequence = false;
 							main_menu = true;
 							break;
 						}
@@ -631,9 +648,12 @@ public class Main extends Application {
 					gc.fillText("4TH ", WIDTH/3.2, 350);
 					gc.fillText("5TH ", WIDTH/3.2, 400);
 					
-					gc.fillText("PRESS 'ENTER' TO PLAY", WIDTH/3.4, 480);
+					gc.fillText("PRESS 'ENTER' TO INSERT COIN", WIDTH/3.4, 480);
 					gc.fillText("'I' FOR INSTRUCTIONS", WIDTH/3.4, 520);
-					gc.fillText("'C' FOR CREDITS", WIDTH/3.4, 560);
+					
+					gc.fillText("CREDITS:\t" + enter + " / 1", WIDTH/1.2, 570);
+					
+					gc.fillText("AUTHORS:\t\tPatrick J. McGee\t\t\t\tRene Mercado", WIDTH/3.4, 590);
 				
 			}
 			
@@ -694,6 +714,8 @@ public class Main extends Application {
 				
 				gc.setFont(fontSmall);
 				gc.fillText("Collect invincibility and health powerups\nand activate them!", WIDTH/1.4, 440);
+				
+				gc.fillText("PRESS 'M' FOR MAIN MENU", WIDTH/2.5, HEIGHT-200);
 				
 			}
 			
@@ -780,6 +802,7 @@ public class Main extends Application {
 							}
 							else {
 								wait = 0;
+								asteroid_once = 0;
 								planet_stage = 1;
 								initialize();
 							}
@@ -883,15 +906,56 @@ public class Main extends Application {
 			
 			else if(ending_sequence) {
 				
-				// Black background
-				gc.setFill(Color.BLACK);
-				gc.fillRect(0, 0, WIDTH, HEIGHT);
+				// Cool space background
+				gc.drawImage(stars, 0, 0, WIDTH, HEIGHT);
 				
-				gc.setFont(fontSmall);
-				gc.setFill(Color.WHITE);
-				gc.fillText("ENDING SEQUENCE", WIDTH/2.5, 160);
+				engine.play();
+			    // Make sure that certain audio clips are only being played one time to avoid overlap
+			    if(asteroid_once < 1) {
+			    	media.stop();
+			    	media = new MediaPlayer(asteroid_song);
+					media.setCycleCount(25);
+					media.play();
+					media.setVolume(0.4);
+					
+					// While we're doing things once... set space ship's coordinates back to original
+				    p.x = 50;
+				    p.y = HEIGHT/2 ;
+				    
+				    // Store current time into a variable for score calculation
+				    score_time = currTime;
+			    }
+			    asteroid_once++;
+			    
 				
 				p.render(gc);
+				
+				if(p.x < WIDTH ){
+					
+					gc.setFont(fontSmall);
+					gc.setFill(Color.WHITE);
+					gc.fillText("SPACE PERSON\nobtained enough fuel\nto make the journey to Earth.", WIDTH/2.5, 160);
+					
+				}
+				else {
+					// Black background layer for score visibility
+					gc.setFill(Color.BLACK);
+					gc.fillRect(WIDTH/2.7, 80, 300, 300);
+					
+					gc.setFont(font);
+					gc.setFill(Color.WHITE);
+					gc.fillText("   SCORE:\t" + score.score, WIDTH/2.5, 100);
+					
+					gc.fillText(" - BULLETS FIRED =\t" + ammo_ct, WIDTH/2.5, 150);
+					gc.fillText(" - TIME TAKEN =\t" + score_time + " SECONDS", WIDTH/2.5, 200);
+					
+					int final_score = score.score - ammo_ct - score_time;
+					
+					gc.fillText("   FINAL SCORE:\t" + final_score, WIDTH/2.5, 250);
+					
+					// Reset variables and ask for main menu screen
+					gc.fillText("PRESS 'M' FOR MAIN MENU", WIDTH/2.5, HEIGHT-200);
+				}
 				
 			}
 				

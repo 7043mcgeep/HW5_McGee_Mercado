@@ -110,12 +110,14 @@ class HeroSprite
 	}
 	
 	public void fireBullet(){
+		 Main.ammo_ct++;
 	     bullet.setPosition(locx+20, locy);
 	     bullet.setVelocity(18, 0);
 	     bullet.resume();
 	   }
 	
 	public void fireBulletLeft(){
+		 Main.ammo_ct++;
 	     bullet.setPosition(locx, locy);
 	     bullet.setVelocity(-18, 0);
 	     bullet.resume();
