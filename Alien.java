@@ -16,7 +16,7 @@ public class Alien{
 	public Grid g;
 	public int hits;
 	
-	boolean active=true, visible=true, deadB=false;
+	boolean active=true, visible=true, dead=false;
 	
 	 Image img;
 	 // Level 1 aliens
@@ -25,7 +25,6 @@ public class Alien{
 	 Image r_dead = new Image("sprites/AlienRdeath.gif");
 	 Image r_dead_l = new Image("sprites/AlienRdeath_l.gif");
 	 
-	 // Level 2 aliens
 	 Image g_attack = new Image("sprites/AlienGAttack.gif");
 	 Image g_attack_l = new Image("sprites/AlienGAttack_l.gif");
 	 Image g_dead = new Image("sprites/AlienGdeath.gif");
@@ -45,10 +44,10 @@ public class Alien{
 	}
 	
 	public void render(GraphicsContext gc){
-		if(visible && !deadB) {
+		if(visible && !dead) {
 			gc.drawImage(img, ax-Main.scroll_left, ay-20, 60, 90);
 		}
-		if(deadB) {
+		if(dead) {
 			gc.drawImage(img, ax-Main.scroll_left, ay+10, 90, 90);
 		}
 	}
@@ -57,6 +56,9 @@ public class Alien{
 		if (active){
 			ct ++;
 			if (HeroSprite.locx <= ax) {
+				if (dead)
+					img = r_dead_l;
+				
 				img = r_attack_l;
 				System.out.println("ct = " + ct + " timer = " + timer);
 				if(ct == timer) {
@@ -67,6 +69,9 @@ public class Alien{
 				}
 			}
 			else if (HeroSprite.locx > ax) {
+				if (dead)
+					img = r_dead;
+				
 				img = r_attack;
 				System.out.println("ct = " + ct + " timer = " + timer);
 				if(ct == timer) {
@@ -98,12 +103,8 @@ public class Alien{
 	   }
 	
 	 void suspend(){
-		 deadB = true;
-		 //Main.impact.play();
-		 if (HeroSprite.locx <= ax)
-		 	img = r_dead_l;
-		 else if (HeroSprite.locx > ax)
-			 img = r_dead;
-	    active = false; visible = false;
+		 dead = true;
+
+	     active = false; visible = false;
 	  }	  
 }

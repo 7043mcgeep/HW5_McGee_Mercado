@@ -54,9 +54,9 @@ public class Main extends Application {
 	
 	HeroSprite hero;
 	Grid grid_1;
-	Image background, bk_forest, water, up, down, left_key, right, ctrl_key, space, shift, w_key, s_key, a_key, d_key, tip1, tip2;
-	Image powerup;
-	Image new_life;
+	Image background, bk_forest, water, up, down, left_key, right,
+		  ctrl_key, space, shift, w_key, s_key, a_key, d_key, tip1, tip2,
+		  powerup, stars, new_life;
 	Rock rocks[] = new Rock[5];
 	static Portal portal;
 	static Fuelcan fuelcan;
@@ -94,6 +94,7 @@ public class Main extends Application {
 	public static int     planet_stage = 0;				// 1 is the first stage. After the 3rd stage, player wins.
 	public static boolean open_portal = false;
 	public static boolean portal_hit = false;
+	public static boolean ending_sequence = false;
 	public static boolean render_fuel = false;
 	public static int	  portal_once = 0;
 	public static int	  kill_all_lv1 = 0;
@@ -139,6 +140,7 @@ public class Main extends Application {
 //		powerup = new Image("sprites/fist.gif)");
 //		new_life = new Image("sprites/meds.gif)");
 //		
+		stars = new Image("sprites/asteroid_bkgnd.jpg");
 		up = new Image("sprites/pc_up.png");
 		down = new Image("sprites/pc_down.png");
 		left_key = new Image("sprites/pc_left.png");
@@ -321,6 +323,11 @@ public class Main extends Application {
 			
 			if(planet_stage == 1 && initialized_lv1) {
 				
+				if(open_portal) {
+					if(hero.collisionBox().intersects(portal.collisionBox()))
+						portal_hit = true;
+				}
+				
 				for(int i = 0; i < aliens1.length; i++) {
 					aliens1[i].update();
 					
@@ -343,15 +350,16 @@ public class Main extends Application {
 								portal_open.play();
 							}
 						}
-						
-						if(hero.collisionBox().intersects(portal.collisionBox()))
-							portal_hit = true;
 					}
 					
 				}
 			}
 			
 			if(planet_stage == 2 && !wait_a_sec) {
+				
+				open_portal = false;
+				wait_a_sec = false;
+				
 				for(int i = 0; i < aliens2.length; i++) {
 					aliens2[i].update();
 					
@@ -377,6 +385,11 @@ public class Main extends Application {
 								if(aliens2[i].hits <= 0)
 									aliens2[i].suspend();
 						}
+					}
+					
+					if(hero.collisionBox().intersects(fuelcan.collisionBox())) {
+						ending_sequence = true;
+						planet_stage = 0;
 					}
 
 				}
@@ -723,9 +736,8 @@ public class Main extends Application {
 				    }
 				    asteroid_once++;
 				
-					// Black background
-					gc.setFill(Color.BLACK);
-					gc.fillRect(0, 0, WIDTH, HEIGHT);
+					// Cool space background
+					gc.drawImage(stars, 0, 0, WIDTH, HEIGHT);
 					
 					// Draw asteroids
 					for (Asteroid b: asteroids)
@@ -867,6 +879,20 @@ public class Main extends Application {
 				if(render_fuel)
 					fuelcan.render(gc);
 					
+			}
+			
+			else if(ending_sequence) {
+				
+				// Black background
+				gc.setFill(Color.BLACK);
+				gc.fillRect(0, 0, WIDTH, HEIGHT);
+				
+				gc.setFont(fontSmall);
+				gc.setFill(Color.WHITE);
+				gc.fillText("ENDING SEQUENCE", WIDTH/2.5, 160);
+				
+				p.render(gc);
+				
 			}
 				
 			// For now, always render score and current time.

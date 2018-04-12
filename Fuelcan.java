@@ -40,7 +40,7 @@ public class Fuelcan extends Sprite{
 
 
 	public BoundingBox collisionBox(){
-		return new BoundingBox(tx, ty, 70, 70);
+		return new BoundingBox(tx, ty, 100, 100);
 	}
 	
 	void suspend(){

@@ -189,8 +189,9 @@ class HeroSprite
 	}
 	
 	public void render(GraphicsContext gc){
+		if(Main.render_fuel)
+			Main.wait_a_sec = false;
 		if(Main.wait_a_sec) {
-			System.out.println("WAAAAAAAAAAAAAAAAAAAAAAAVESSSSSSSSSSSSSSSSSSSSSSS");
 			gc.drawImage(illusion, locx-Main.scroll_left - Main.WIDTH/1.4, locy - Main.HEIGHT,  Main.WIDTH*1.5, Main.HEIGHT*2);
 			gc.setFill(Color.GREEN);
 			gc.setFont(Main.font);
