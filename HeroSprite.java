@@ -15,6 +15,7 @@ class HeroSprite
 	static final double GRAVITY = 2.7;
 	public boolean powerup = false;
 	public int powerup_t = 0;
+	public int longhit_t = 0;
 	
 	public Bullet bullet;
 	public Color color;
@@ -132,7 +133,7 @@ class HeroSprite
 		
 		// If level 1 complete, go to asteroid stage 2.
 		
-		System.out.println("locx: " + locx + " locy: " + locy + " planet_stage= " + Main.planet_stage);
+		//System.out.println("locx: " + locx + " locy: " + locy + " planet_stage= " + Main.planet_stage);
 		if(Main.planet_stage == 1) {
 			if(Main.portal_hit) {
 				Main.planet_stage = 2;
@@ -209,6 +210,17 @@ class HeroSprite
 		else if(powerup_t >= 70) {
 			powerup = false;
 			powerup_t = 0;
+		}
+		
+		if(Main.render_longhit) longhit_t++;
+		if(Main.render_longhit && longhit_t < 70) {
+			gc.setFill(Color.TURQUOISE);
+			gc.setFont(Main.font);
+			gc.fillText("LONG SHOT! +500", locx-Main.scroll_left - 20, locy - 20);
+		}
+		else if(longhit_t >= 70) {
+			Main.render_longhit = false;
+			longhit_t = 0;
 		}
 	}
 }

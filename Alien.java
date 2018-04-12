@@ -22,9 +22,10 @@ public class Alien{
 	 // Level 1 aliens
 	 Image r_attack = new Image("sprites/AlienRAttack.gif");
 	 Image r_attack_l = new Image("sprites/AlienRAttack_l.gif");
-	 Image r_dead = new Image("sprites/AlienRdeath.gif");
+	 Image r_dead = new Image("sprites/AlienGDeath1.gif");
 	 Image r_dead_l = new Image("sprites/AlienRdeath_l.gif");
 	 
+	 // Level 2 aliens
 	 Image g_attack = new Image("sprites/AlienGAttack.gif");
 	 Image g_attack_l = new Image("sprites/AlienGAttack_l.gif");
 	 Image g_dead = new Image("sprites/AlienGdeath.gif");
@@ -48,7 +49,7 @@ public class Alien{
 			gc.drawImage(img, ax-Main.scroll_left, ay-20, 60, 90);
 		}
 		if(dead) {
-			gc.drawImage(img, ax-Main.scroll_left, ay+10, 90, 90);
+			gc.drawImage(r_dead, ax-Main.scroll_left, ay-15, 90, 90);
 		}
 	}
 	
@@ -60,7 +61,7 @@ public class Alien{
 					img = r_dead_l;
 				
 				img = r_attack_l;
-				System.out.println("ct = " + ct + " timer = " + timer);
+				//System.out.println("ct = " + ct + " timer = " + timer);
 				if(ct == timer) {
 					shoot_l();
 					if(HeroSprite.locx > ax-700);
@@ -73,7 +74,7 @@ public class Alien{
 					img = r_dead;
 				
 				img = r_attack;
-				System.out.println("ct = " + ct + " timer = " + timer);
+				//System.out.println("ct = " + ct + " timer = " + timer);
 				if(ct == timer) {
 					shoot();
 					if(HeroSprite.locx < ax+700)

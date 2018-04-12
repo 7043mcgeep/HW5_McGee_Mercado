@@ -109,6 +109,7 @@ public class Main extends Application {
 	public static boolean lv2 = false;
 	public static boolean lv3 = false;
 	public static boolean wait_a_sec = false;
+	public static boolean render_longhit = false;
 	
 	static Font font = Font.loadFont(Main.class.getResource("PressStart2P.ttf").toExternalForm(), 32);
 	static Font fontSmall = Font.loadFont(Main.class.getResource("PressStart2P.ttf").toExternalForm(), 22);
@@ -341,6 +342,13 @@ public class Main extends Application {
 		
 		if(planet_stage >= 1) {
 			
+			// If we're out of lives... end game.
+			if(lives.lives == 0) {
+				hero_grunt.play();
+				pic[0].suspend();
+				game_over = true;
+			}
+			
 			// Update space person and cool rocks
 			hero.update();
 			for (int i = 0; i < rocks.length; i++)
@@ -357,11 +365,6 @@ public class Main extends Application {
 						hero_grunt.play();
 						lives.lives--;
 						pic[k].suspend();
-					}
-					if(lives.lives == 0) {
-						hero_grunt.play();
-						pic[0].suspend();
-						game_over = true;
 					}
 				}
 				
@@ -400,6 +403,13 @@ public class Main extends Application {
 							if(pic[0].active) {
 								aliens1[i].hits--;
 								score.score += 100;
+								b1.end = b1.x;
+
+								// Poor java practice but... must... use... non-static accessing
+								if(Math.abs(b1.end - hero.locx) >= 400) {
+									render_longhit = true;
+									score.score += 500;		// 500 Bonus points added
+								}
 								pic[0].suspend();
 							}
 							if(aliens1[i].hits <= 0) {
@@ -432,6 +442,13 @@ public class Main extends Application {
 						if(b1.collisionBox().intersects(aliens2[i].collisionBox()) && aliens2[i].active) {
 							if(pic[0].active) {
 								aliens2[i].hits--;
+								b1.end = b1.x;
+
+								// Poor java practice but... must... use... non-static accessing
+								if(Math.abs(b1.end - hero.locx) >= 400) {
+									render_longhit = true;
+									score.score += 500;		// 500 Bonus points added
+								}
 								pic[0].suspend();
 								score.score += 100;
 							}
@@ -521,8 +538,8 @@ public class Main extends Application {
 						if(enter < 2 && main_menu){
 							base = (int) System.currentTimeMillis();
 							asteroid_stage = 1;
-							//beat_dodge = true;
-							main_menu = false;
+							beat_dodge = true;
+							//main_menu = false;
 							enter++;
 							break;
 						}
@@ -650,10 +667,10 @@ public class Main extends Application {
 					
 					gc.fillText("PRESS 'ENTER' TO INSERT COIN", WIDTH/3.4, 480);
 					gc.fillText("'I' FOR INSTRUCTIONS", WIDTH/3.4, 520);
+					gc.fillText("AUTHORS: Patrick J. McGee\n\t Rene Mercado", WIDTH/3.4, 590);
 					
-					gc.fillText("CREDITS:\t" + enter + " / 1", WIDTH/1.2, 570);
-					
-					gc.fillText("AUTHORS:\t\tPatrick J. McGee\t\t\t\tRene Mercado", WIDTH/3.4, 590);
+					gc.setFill(Color.RED);
+					gc.fillText("CREDITS:" + enter + " / 1", WIDTH/9, 650);
 				
 			}
 			
@@ -710,7 +727,7 @@ public class Main extends Application {
 				gc.fillText("Lower time and lower bullets shot\nyields a higher score!", WIDTH/1.4, 300);
 				
 				gc.setFont(fontSmall);
-				gc.fillText("Long shots yield 1000 bonus points!", WIDTH/1.4, 370);
+				gc.fillText("Long shots yield 500 bonus points!", WIDTH/1.4, 370);
 				
 				gc.setFont(fontSmall);
 				gc.fillText("Collect invincibility and health powerups\nand activate them!", WIDTH/1.4, 440);
@@ -721,11 +738,12 @@ public class Main extends Application {
 			
 			else if(game_over) {
 				
-				// Do this once to prevent scary Smash Mouth echoing... :
+				// Do this once:
 				if(stop_ct < 1) {
 					
 					// Stop both audio tracks
 					media.stop();
+					media2.stop();
 					
 					if(planet_stage == 2)
 						media2.stop();
@@ -938,23 +956,20 @@ public class Main extends Application {
 					
 				}
 				else {
-					// Black background layer for score visibility
-					gc.setFill(Color.BLACK);
-					gc.fillRect(WIDTH/2.7, 80, 300, 300);
 					
 					gc.setFont(font);
 					gc.setFill(Color.WHITE);
-					gc.fillText("   SCORE:\t" + score.score, WIDTH/2.5, 100);
+					gc.fillText("   SCORE:\t" + score.score, WIDTH/6, 200);
 					
-					gc.fillText(" - BULLETS FIRED =\t" + ammo_ct, WIDTH/2.5, 150);
-					gc.fillText(" - TIME TAKEN =\t" + score_time + " SECONDS", WIDTH/2.5, 200);
+					gc.fillText("   - BULLETS FIRED =\t" + ammo_ct, WIDTH/6, 250);
+					gc.fillText("   - TIME TAKEN =\t" + score_time + " SECONDS", WIDTH/6, 300);
 					
 					int final_score = score.score - ammo_ct - score_time;
 					
-					gc.fillText("   FINAL SCORE:\t" + final_score, WIDTH/2.5, 250);
+					gc.fillText("   FINAL SCORE:\t" + final_score, WIDTH/6, 350);
 					
 					// Reset variables and ask for main menu screen
-					gc.fillText("PRESS 'M' FOR MAIN MENU", WIDTH/2.5, HEIGHT-200);
+					gc.fillText("PRESS 'M' FOR MAIN MENU", WIDTH/6, HEIGHT-50);
 				}
 				
 			}
