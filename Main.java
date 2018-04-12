@@ -59,6 +59,7 @@ public class Main extends Application {
 	Image new_life;
 	Rock rocks[] = new Rock[5];
 	static Portal portal;
+	static Fuelcan fuelcan;
 	
 	public int			  ammo_ct = 0;			// Ammo count used in final score calculation.
 	public int            fuel_ct = 0;			// Each level beaten, user picks up fuel can, adds 33 to this constant.
@@ -93,6 +94,7 @@ public class Main extends Application {
 	public static int     planet_stage = 0;				// 1 is the first stage. After the 3rd stage, player wins.
 	public static boolean open_portal = false;
 	public static boolean portal_hit = false;
+	public static boolean render_fuel = false;
 	public static int	  portal_once = 0;
 	public static int	  kill_all_lv1 = 0;
 	public static int	  kill_all_lv2 = 0;
@@ -258,7 +260,7 @@ public class Main extends Application {
 		    aliens2[3] = new Alien(grid_1, 2464, 339, b5);
 		    aliens2[4] = new Alien(grid_1, 3494, 499, b6);
 		    aliens2[5] = new Alien(grid_1, 4607, 339, b7);
-		    aliens2[6] = new Alien(grid_1, 5871, 2191, b8);
+		    aliens2[6] = new Alien(grid_1, 5871, 219, b8);
 		    aliens2[7] = new Alien(grid_1, 7414, 499, b9);
 		}
 		
@@ -334,6 +336,7 @@ public class Main extends Application {
 								alien_grunt.play();
 								aliens1[i].suspend();
 								kill_all_lv1++;
+								System.out.println("KILLED: " + kill_all_lv2 + " TOTAL: " + aliens2.length);
 							}
 							if(kill_all_lv1 == aliens1.length) {
 								open_portal = true;
@@ -359,11 +362,21 @@ public class Main extends Application {
 							if(pic[0].active) {
 								aliens2[i].hits--;
 								pic[0].suspend();
+								//kill_all_lv2++;
 							}
-							if(aliens2[i].hits <= 0)
+							if(aliens2[i].hits <= 0) {
+								alien_grunt.play();
 								aliens2[i].suspend();
-						}	
-						
+								kill_all_lv2++;
+								System.out.println("KILLED: " + kill_all_lv2 + " TOTAL: " + aliens2.length);
+							}
+							if(kill_all_lv2 == aliens2.length) {
+								render_fuel = true;
+								//fuel_can.play();
+							}
+								if(aliens2[i].hits <= 0)
+									aliens2[i].suspend();
+						}
 					}
 
 				}
@@ -613,9 +626,7 @@ public class Main extends Application {
 			
 			if(instructions) {
 				
-				// Do this once to prevent scary Smash Mouth echoing... :
 				if(stop_ct < 1) {
-					
 					
 					
 				}
@@ -852,6 +863,9 @@ public class Main extends Application {
 				for(int i = 0; i < aliens2.length; i++) {
 					aliens2[i].render(gc);
 				}
+				
+				if(render_fuel)
+					fuelcan.render(gc);
 					
 			}
 				

@@ -237,5 +237,8 @@ public class Levels {
 		grid_1.setBlock(177,13);grid_1.setBlock(177,12);grid_1.setBlock(177,11);grid_1.setBlock(177,10);grid_1.setBlock(177,9);grid_1.setBlock(177,8);grid_1.setBlock(177,7);grid_1.setBlock(177,6);
 		grid_1.setBlock(178,13);grid_1.setBlock(178,12);grid_1.setBlock(178,11);grid_1.setBlock(178,10);grid_1.setBlock(178,9);grid_1.setBlock(178,8);grid_1.setBlock(178,7);grid_1.setBlock(178,6);
 		grid_1.setBlock(179,13);grid_1.setBlock(179,12);grid_1.setBlock(179,11);grid_1.setBlock(179,10);grid_1.setBlock(179,9);grid_1.setBlock(179,8);grid_1.setBlock(179,7);grid_1.setBlock(179,6);grid_1.setBlock(179,5);grid_1.setBlock(179,4);
+	
+		Main.fuelcan = new Fuelcan(grid_1,9706,499);
+	
 	}
 }

@@ -23,8 +23,10 @@ public class Fuelcan extends Sprite{
 	}
 	
 	public void render(GraphicsContext gc){
-		if(visible)
-			gc.drawImage(fuel, tx-Main.scroll_left, ty, 70, 70);
+		if(visible) {
+			System.out.println("RENDER FUEL");
+			gc.drawImage(fuel, tx-Main.scroll_left, ty, 100, 100);
+		}
 	}
 	
 	public void update(){
